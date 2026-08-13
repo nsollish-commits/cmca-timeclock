@@ -1,0 +1,981 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Chabad Academy Time Clock</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,600&family=Poppins:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  /* CMCA brand palette — Zodiac (navy), Botticelli (pale blue), Spindle (mid blue), Saffron (yellow) */
+  :root{
+    --ink: #152F50;         /* Zodiac */
+    --chalkboard: #152F50;  /* Zodiac */
+    --chalkboard-dark: #0E2038;
+    --chalk: #E7F1FB;       /* Botticelli, used as light text on navy */
+    --paper: #E7F1FB;       /* Botticelli */
+    --paper-dim: #F3F8FD;
+    --card: #FFFFFF;
+    --brass: #F9CE5F;       /* Saffron */
+    --brass-dark: #C79A2E;
+    --rule: #B1C5EC;        /* Spindle */
+    --stamp-green: #152F50; /* Zodiac, used for the "in" stamp */
+    --stamp-red: #B3432B;   /* functional-only error state, not a brand color */
+    --muted: #5C7093;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; }
+  body{
+    margin:0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family:'Poppins', sans-serif;
+    min-height:100vh;
+  }
+
+  .app{ max-width: 720px; margin: 0 auto; padding: 0 0 64px; }
+
+  header.bar{
+    background: var(--chalkboard);
+    color: var(--chalk);
+    padding: 28px 24px 24px;
+    border-bottom: 4px solid var(--brass);
+  }
+  header.bar .eyebrow{
+    font-family:'Poppins', sans-serif;
+    font-weight:600;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--brass);
+    margin: 0 0 6px;
+  }
+  header.bar h1{
+    font-family:'Lora', serif;
+    font-weight:600;
+    font-size: 32px;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+  header.bar .sub{
+    font-family:'Poppins', sans-serif;
+    font-size: 14px;
+    color: #A9C1E8;
+    margin-top: 6px;
+  }
+
+  .tabs{
+    display:flex;
+    gap: 0;
+    margin: 20px 24px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .tab{
+    font-family:'Poppins', sans-serif;
+    font-weight:600;
+    font-size: 12px;
+    letter-spacing:0.06em;
+    padding: 10px 4px;
+    margin-right: 24px;
+    color: var(--muted);
+    cursor:pointer;
+    border-bottom: 2px solid transparent;
+    background:none; border:none;
+    text-transform: uppercase;
+  }
+  .tab.active{ color: var(--chalkboard); border-bottom-color: var(--brass); font-weight:600; }
+
+  main{ padding: 28px 24px 0; }
+
+  .card{
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 24px;
+    margin-bottom: 20px;
+    position: relative;
+    box-shadow: 0 1px 2px rgba(21,47,80,0.05);
+  }
+  .card h2{
+    font-family:'Lora', serif;
+    font-size: 19px;
+    font-weight:600;
+    margin: 0 0 4px;
+    color: var(--ink);
+  }
+  .card .hint{
+    font-size: 13px;
+    color: var(--muted);
+    margin: 0 0 18px;
+  }
+
+  label{
+    display:block;
+    font-family:'Poppins', sans-serif;
+    font-weight:600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  input[type=text], input[type=password], input[type=number], select{
+    width:100%;
+    font-family:'Poppins', sans-serif;
+    font-size: 15px;
+    padding: 10px 12px;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    background: #fff;
+    color: var(--ink);
+    margin-bottom: 16px;
+  }
+  select{ appearance: none; -webkit-appearance:none; background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%); background-position: calc(100% - 20px) calc(1.1em), calc(100% - 15px) calc(1.1em); background-size: 5px 5px, 5px 5px; background-repeat: no-repeat; }
+  input:focus, select:focus{ outline: 2px solid var(--brass); outline-offset: 1px; }
+
+  input[type=time]{
+    width:100%;
+    font-family:'Poppins', sans-serif;
+    font-size: 15px;
+    padding: 10px 12px;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    background: #fff;
+    color: var(--ink);
+    margin-bottom: 16px;
+  }
+  .checkbox-row{
+    display:flex;
+    align-items:center;
+    gap: 8px;
+    font-family:'Poppins', sans-serif;
+    font-size: 13px;
+    text-transform: none;
+    letter-spacing: normal;
+    color: var(--muted);
+    margin-bottom: 12px;
+    cursor: pointer;
+  }
+  .checkbox-row input[type=checkbox]{ width:16px; height:16px; margin:0; flex-shrink:0; }
+
+  textarea{
+    width:100%;
+    font-family:'Poppins', sans-serif;
+    font-size: 15px;
+    padding: 10px 12px;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    background: #fff;
+    color: var(--ink);
+    margin-bottom: 12px;
+    resize: vertical;
+  }
+  textarea:focus{ outline: 2px solid var(--brass); outline-offset: 1px; }
+  .teacher-row{ display:flex; align-items:center; justify-content:space-between; padding: 8px 0; border-bottom: 1px solid var(--rule); }
+  .teacher-row:last-child{ border-bottom:none; }
+  .teacher-row .remove-btn{ background:none; border:none; color: var(--stamp-red); cursor:pointer; font-family:'Poppins', sans-serif; font-size: 12px; font-weight:600; }
+
+  .btn{
+    font-family:'Poppins', sans-serif;
+    font-weight:600;
+    font-size: 14px;
+    padding: 11px 20px;
+    border-radius: 5px;
+    border: none;
+    cursor:pointer;
+    transition: transform .05s ease;
+  }
+  .btn:active{ transform: translateY(1px); }
+  .btn:disabled{ opacity:0.5; cursor:not-allowed; }
+  .btn-primary{ background: var(--chalkboard); color: var(--chalk); }
+  .btn-brass{ background: var(--brass); color: #2b1e02; }
+  .btn-outline{ background:transparent; border:1px solid var(--rule); color: var(--ink); }
+  .btn-block{ width:100%; padding: 15px; font-size: 15px; }
+  .btn-row{ display:flex; gap:10px; flex-wrap:wrap; }
+
+  .status-line{
+    display:flex;
+    align-items:center;
+    gap: 8px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 13px;
+    margin-bottom: 16px;
+    padding: 10px 12px;
+    border-radius: 4px;
+    background: var(--paper-dim);
+  }
+  .dot{ width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+  .dot.ok{ background: var(--stamp-green); }
+  .dot.bad{ background: var(--stamp-red); }
+  .dot.wait{ background: var(--brass); }
+
+  .stamp-wrap{
+    position: relative;
+    min-height: 90px;
+    display:flex; align-items:center; justify-content:center;
+    margin: 6px 0 4px;
+  }
+  .stamp{
+    font-family:'Lora', serif;
+    font-weight:700;
+    font-size: 26px;
+    letter-spacing: 0.04em;
+    padding: 14px 28px;
+    border: 3px solid currentColor;
+    border-radius: 8px;
+    transform: rotate(-4deg) scale(1);
+    opacity: 1;
+    text-transform: uppercase;
+    animation: stampdown 0.35s cubic-bezier(.2,1.4,.5,1);
+  }
+  .stamp.in{ color: var(--stamp-green); }
+  .stamp.out{ color: var(--brass-dark); }
+  .stamp small{
+    display:block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    margin-top: 4px;
+    text-transform: none;
+  }
+  @keyframes stampdown{
+    0%{ transform: rotate(-4deg) scale(2.4); opacity:0; }
+    60%{ transform: rotate(-4deg) scale(0.92); opacity:1; }
+    100%{ transform: rotate(-4deg) scale(1); opacity:1; }
+  }
+
+  table{ width:100%; border-collapse: collapse; font-size: 13px; }
+  th, td{
+    text-align:left;
+    padding: 9px 10px;
+    border-bottom: 1px solid var(--rule);
+    font-family:'IBM Plex Mono', monospace;
+  }
+  th{
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    font-weight:600;
+  }
+  td.name{ font-family:'Poppins', sans-serif; font-weight:500; }
+  .empty{ color: var(--muted); font-size: 13px; font-style: italic; }
+
+  .totals-row{ display:flex; justify-content:space-between; padding: 8px 0; border-bottom: 1px dashed var(--rule); font-family:'IBM Plex Mono', monospace; font-size: 13px; }
+  .totals-row:last-child{ border-bottom:none; }
+  .totals-row .hrs{ font-weight:600; color: var(--chalkboard); }
+
+  .banner{
+    background: #FDF3DC;
+    border: 1px solid var(--brass);
+    color: #7A5A0E;
+    padding: 12px 14px;
+    border-radius: 5px;
+    font-size: 13px;
+    margin-bottom: 18px;
+  }
+  .locked{
+    text-align:center;
+    padding: 40px 20px;
+    color: var(--muted);
+  }
+  .locked h2{ font-family:'Lora', serif; color: var(--ink); }
+
+  a.link-btn{ font-family:'IBM Plex Mono', monospace; font-size:12px; color: var(--chalkboard); cursor:pointer; text-decoration: underline; }
+
+  @media (prefers-reduced-motion: reduce){
+    .stamp{ animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app" id="app"></div>
+<script>
+(function(){
+  const app = document.getElementById('app');
+  const CONFIG_KEY = 'school-config';
+  const RECORDS_KEY = 'timeclock-records';
+  const LAST_TEACHER_KEY = 'cmca-last-teacher';
+  const GEO_GRANTED_KEY = 'cmca-geo-granted';
+  const ADMIN_PASS_DEFAULT = 'setup2026'; // first-time admin passcode; change it from the Admin tab after logging in
+
+  // Pre-seeded location — used only if no config has been saved yet.
+  // Admin can still change name/radius/coordinates any time from the Admin tab.
+  const DEFAULT_CONFIG = {
+    name: 'Chabad Academy',
+    lat: 33.8961267,
+    lng: -84.3820022,
+    radius: 300,
+    adminPass: ADMIN_PASS_DEFAULT,
+    teachers: []
+  };
+
+  let state = {
+    tab: 'clock',
+    config: null,         // {name, lat, lng, radius, adminPass, teachers: []}
+    records: [],          // array of {id, teacherName, type, ts, distance, withinRange}
+    teacherName: '',
+    checking: false,
+    geoStatus: null,      // {ok, distance, message}
+    geoPermission: 'unknown', // 'granted' | 'denied' | 'prompt' | 'unsupported' | 'unknown'
+    hasGrantedBefore: false,
+    lastStamp: null,      // {type, ts}
+    adminUnlocked: false,
+    adminPassInput: '',
+    adminError: '',
+    settingLocation: false,
+    locSaveMsg: '',
+    newTeacherInput: '',
+    manualTimeEnabled: false,
+    manualTimeValue: '',
+    adminDateFilter: null,
+    showAllDates: false
+  };
+
+  function toRad(v){ return v * Math.PI / 180; }
+  function haversine(lat1, lng1, lat2, lng2){
+    const R = 6371000;
+    const dLat = toRad(lat2-lat1);
+    const dLng = toRad(lng2-lng1);
+    const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLng/2)**2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  }
+
+  async function loadAll(){
+    try{
+      const cfgRes = await fetch('/api/config', { cache: 'no-store' });
+      const cfgData = await cfgRes.json();
+      state.config = cfgData || DEFAULT_CONFIG;
+      if(state.config && !Array.isArray(state.config.teachers)) state.config.teachers = [];
+    }catch(e){ state.config = DEFAULT_CONFIG; }
+    try{
+      const recRes = await fetch('/api/records', { cache: 'no-store' });
+      state.records = await recRes.json();
+    }catch(e){ state.records = []; }
+    try{
+      const remembered = localStorage.getItem(LAST_TEACHER_KEY);
+      if(remembered) state.teacherName = remembered;
+    }catch(e){ /* localStorage unavailable (e.g. private browsing) — no remembered teacher */ }
+    try{
+      if(localStorage.getItem(GEO_GRANTED_KEY) === 'true') state.hasGrantedBefore = true;
+    }catch(e){ /* ignore */ }
+    await checkGeoPermission();
+    render();
+  }
+
+  function rememberTeacher(name){
+    try{ localStorage.setItem(LAST_TEACHER_KEY, name); }catch(e){ /* ignore */ }
+  }
+
+  async function checkGeoPermission(){
+    if(!navigator.permissions || !navigator.permissions.query){
+      state.geoPermission = 'unsupported'; // browser will still prompt directly when we call getCurrentPosition
+      return;
+    }
+    try{
+      const status = await navigator.permissions.query({ name: 'geolocation' });
+      state.geoPermission = status.state; // 'granted' | 'denied' | 'prompt'
+      if(status.state === 'granted') markGrantedBefore();
+      status.onchange = () => { state.geoPermission = status.state; render(); };
+    }catch(e){
+      state.geoPermission = 'unsupported';
+    }
+  }
+
+  function markGrantedBefore(){
+    if(state.hasGrantedBefore) return;
+    state.hasGrantedBefore = true;
+    try{ localStorage.setItem(GEO_GRANTED_KEY, 'true'); }catch(e){ /* ignore */ }
+  }
+
+  async function handleEnableLocation(){
+    state.geoStatus = { ok:null, message: 'Requesting location access…' };
+    render();
+    try{
+      await getLocation();
+      await checkGeoPermission();
+      markGrantedBefore();
+      state.geoStatus = { ok:true, message: 'Location access granted. You can check in now.' };
+    }catch(e){
+      await checkGeoPermission();
+      state.geoStatus = { ok:false, message: geoErrorMessage(e) };
+    }
+    render();
+  }
+
+  function geoErrorMessage(e){
+    if(e.code === 1) return 'Location access is blocked for this site. Tap the lock or site-info icon next to the address bar, allow Location, then refresh the page.';
+    if(e.code === 2) return 'Your device could not determine your location — Location Services may be turned off. Enable it in your phone or computer\'s system settings, then try again.';
+    if(e.code === 3) return 'Location request timed out. Try again.';
+    return e.message || 'Could not get your location.';
+  }
+
+  async function saveConfig(cfg){
+    state.config = cfg;
+    await fetch('/api/config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(cfg)
+    });
+  }
+
+  async function saveRecords(){
+    await fetch('/api/records', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(state.records)
+    });
+  }
+
+  function fmtTime(ts){
+    const d = new Date(ts);
+    return d.toLocaleString(undefined, { weekday:'short', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+  }
+  function fmtHours(h){ return h.toFixed(2) + ' hrs'; }
+
+  function lastRecordFor(name){
+    const list = state.records.filter(r => r.teacherName.toLowerCase() === name.toLowerCase());
+    if(!list.length) return null;
+    return list.reduce((a,b)=> new Date(a.ts) > new Date(b.ts) ? a : b);
+  }
+
+  function isCheckedIn(name){
+    const last = lastRecordFor(name);
+    return !!(last && last.type === 'in');
+  }
+
+  function computeTotals(records){
+    const list = records || state.records;
+    const byName = {};
+    const sorted = [...list].sort((a,b)=> new Date(a.ts) - new Date(b.ts));
+    const openIn = {};
+    for(const r of sorted){
+      if(r.type === 'in'){
+        openIn[r.teacherName] = r.ts;
+      } else if(r.type === 'out' && openIn[r.teacherName]){
+        const hrs = (new Date(r.ts) - new Date(openIn[r.teacherName])) / 3600000;
+        byName[r.teacherName] = (byName[r.teacherName]||0) + hrs;
+        delete openIn[r.teacherName];
+      }
+    }
+    return byName;
+  }
+
+  function dateStrOf(ts){
+    return new Date(ts).toLocaleDateString('en-CA'); // YYYY-MM-DD in local time
+  }
+
+  function todayStr(){
+    return new Date().toLocaleDateString('en-CA');
+  }
+
+  function nowTimeStr(){
+    const d = new Date();
+    return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+  }
+
+  function getFilteredRecords(){
+    if(state.showAllDates) return state.records;
+    return state.records.filter(r => dateStrOf(r.ts) === state.adminDateFilter);
+  }
+
+  function getLocation(){
+    return new Promise((resolve, reject)=>{
+      if(!navigator.geolocation){ reject(new Error('Geolocation is not supported on this device.')); return; }
+      navigator.geolocation.getCurrentPosition(
+        pos => resolve(pos.coords),
+        err => reject(err),
+        { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
+      );
+    });
+  }
+
+  async function handleUseMyLocation(){
+    state.locSaveMsg = 'Getting your current location…';
+    render();
+    try{
+      const coords = await getLocation();
+      document.getElementById('cfg-lat').value = coords.latitude.toFixed(6);
+      document.getElementById('cfg-lng').value = coords.longitude.toFixed(6);
+      state.locSaveMsg = 'Location captured. Review and save below.';
+    }catch(e){
+      state.locSaveMsg = 'Could not get location: ' + (e.message || 'permission denied.');
+    }
+    render();
+  }
+
+  async function handleSaveConfig(ev){
+    ev.preventDefault();
+    const name = document.getElementById('cfg-name').value.trim() || 'School';
+    const lat = parseFloat(document.getElementById('cfg-lat').value);
+    const lng = parseFloat(document.getElementById('cfg-lng').value);
+    const radius = parseFloat(document.getElementById('cfg-radius').value) || 300;
+    if(isNaN(lat) || isNaN(lng)){
+      state.locSaveMsg = 'Enter valid coordinates, or use "Use my current location."';
+      render();
+      return;
+    }
+    const adminPass = (state.config && state.config.adminPass) || ADMIN_PASS_DEFAULT;
+    const teachers = (state.config && state.config.teachers) || [];
+    await saveConfig({ name, lat, lng, radius, adminPass, teachers });
+    state.locSaveMsg = 'Saved. Teachers can now check in within ' + radius + 'm of ' + name + '.';
+    render();
+  }
+
+  async function handleChangePasscode(ev){
+    ev.preventDefault();
+    const val = document.getElementById('new-pass').value.trim();
+    if(val.length < 4){ state.locSaveMsg = 'Passcode must be at least 4 characters.'; render(); return; }
+    const cfg = { ...state.config, adminPass: val };
+    await saveConfig(cfg);
+    state.locSaveMsg = 'Admin passcode updated.';
+    render();
+  }
+
+  async function handleAddTeacher(ev){
+    ev.preventDefault();
+    const input = document.getElementById('new-teacher-input');
+    const rawNames = input.value.split(/[\n,]/).map(s => s.trim()).filter(Boolean);
+    if(!rawNames.length) return;
+
+    const teachers = Array.isArray(state.config.teachers) ? [...state.config.teachers] : [];
+    const existingLower = teachers.map(t => t.toLowerCase());
+    let added = 0, skipped = 0;
+
+    for(const name of rawNames){
+      if(existingLower.includes(name.toLowerCase())){ skipped++; continue; }
+      teachers.push(name);
+      existingLower.push(name.toLowerCase());
+      added++;
+    }
+    teachers.sort((a,b)=> a.localeCompare(b));
+    await saveConfig({ ...state.config, teachers });
+    state.newTeacherInput = '';
+    state.locSaveMsg = added
+      ? 'Added ' + added + ' teacher' + (added === 1 ? '' : 's') + (skipped ? ' (' + skipped + ' already on the list).' : '.')
+      : 'Everyone on that list is already added.';
+    render();
+  }
+
+  async function handleRemoveTeacher(name){
+    const teachers = (state.config.teachers || []).filter(t => t !== name);
+    await saveConfig({ ...state.config, teachers });
+    render();
+  }
+
+  async function handleClockAction(){
+    const name = state.teacherName.trim();
+    if(!name){ state.geoStatus = { ok:false, message: 'Select your name first.' }; render(); return; }
+    if(!state.config){ state.geoStatus = { ok:false, message: 'Location not set up yet.' }; render(); return; }
+
+    const nextType = isCheckedIn(name) ? 'out' : 'in';
+
+    // Optional manual arrival time (check-in only) — still requires being on-site right now to submit.
+    let tsDate = new Date();
+    let timeAdjusted = false;
+    if(nextType === 'in' && state.manualTimeEnabled && state.manualTimeValue){
+      const parts = state.manualTimeValue.split(':');
+      const candidate = new Date();
+      candidate.setHours(parseInt(parts[0],10) || 0, parseInt(parts[1],10) || 0, 0, 0);
+      if(candidate.getTime() > Date.now() + 60000){
+        state.geoStatus = { ok:false, message: 'Arrival time can\'t be in the future.' };
+        render();
+        return;
+      }
+      tsDate = candidate;
+      timeAdjusted = true;
+    }
+
+    state.checking = true;
+    state.geoStatus = { ok:null, message: 'Checking your location…' };
+    render();
+
+    try{
+      const coords = await getLocation();
+      await checkGeoPermission();
+      await markGrantedBefore();
+      const dist = haversine(coords.latitude, coords.longitude, state.config.lat, state.config.lng);
+      const within = dist <= state.config.radius;
+      state.checking = false;
+
+      if(nextType === 'in' && !within){
+        state.geoStatus = { ok:false, message: 'You\'re not close enough to ' + state.config.name + ' to check in.' };
+        render();
+        return;
+      }
+
+      const offSite = nextType === 'out' && !within;
+      const record = {
+        id: 'r_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+        teacherName: name,
+        type: nextType,
+        ts: tsDate.toISOString(),
+        distance: Math.round(dist),
+        offSite: offSite,
+        timeAdjusted: timeAdjusted
+      };
+      state.records.push(record);
+      await saveRecords();
+      await rememberTeacher(name);
+
+      state.geoStatus = offSite
+        ? { ok:true, message: 'Clocked out — you\'re away from ' + state.config.name + ', so this was noted.' }
+        : { ok:true, message: 'You\'re in range at ' + state.config.name + '.' };
+      state.lastStamp = { type: nextType, ts: record.ts };
+      state.manualTimeEnabled = false;
+      state.manualTimeValue = '';
+      render();
+    }catch(e){
+      state.checking = false;
+      await checkGeoPermission();
+
+      // Clocking out shouldn't be blocked just because location isn't available (e.g. they've already left).
+      if(nextType === 'out'){
+        const record = {
+          id: 'r_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+          teacherName: name,
+          type: 'out',
+          ts: new Date().toISOString(),
+          distance: null,
+          offSite: true,
+          timeAdjusted: false,
+          locationUnavailable: true
+        };
+        state.records.push(record);
+        await saveRecords();
+        await rememberTeacher(name);
+        state.geoStatus = { ok:true, message: 'Clocked out — location wasn\'t available, so this was noted.' };
+        state.lastStamp = { type: 'out', ts: record.ts };
+        render();
+        return;
+      }
+
+      state.geoStatus = { ok:false, message: geoErrorMessage(e) };
+      render();
+    }
+  }
+
+  function handleAdminLogin(ev){
+    ev.preventDefault();
+    const pass = document.getElementById('admin-pass').value;
+    const expected = (state.config && state.config.adminPass) || ADMIN_PASS_DEFAULT;
+    if(pass === expected){
+      state.adminUnlocked = true;
+      state.adminError = '';
+      render();
+      refreshData();
+      return;
+    } else {
+      state.adminError = 'Incorrect passcode.';
+    }
+    render();
+  }
+
+  async function refreshData(){
+    try{
+      const [cfgRes, recRes] = await Promise.all([
+        fetch('/api/config', { cache: 'no-store' }),
+        fetch('/api/records', { cache: 'no-store' })
+      ]);
+      const cfgData = await cfgRes.json();
+      if(cfgData){
+        if(!Array.isArray(cfgData.teachers)) cfgData.teachers = [];
+        state.config = cfgData;
+      }
+      state.records = await recRes.json();
+      render();
+    }catch(e){ /* keep whatever we already have if refresh fails */ }
+  }
+
+  function exportCSV(){
+    const rows = [['Teacher','Type','Timestamp','Distance (m)','Adjusted Time','Off-Site / No Location']];
+    [...getFilteredRecords()].sort((a,b)=> new Date(a.ts) - new Date(b.ts)).forEach(r=>{
+      const flag = r.locationUnavailable ? 'No location' : (r.offSite ? 'Off-site' : '');
+      rows.push([r.teacherName, r.type, r.ts, r.distance ?? '', r.timeAdjusted ? 'Yes' : '', flag]);
+    });
+    const csv = rows.map(r => r.map(v => '"' + String(v).replace(/"/g,'""') + '"').join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'teacher-hours-' + (state.showAllDates ? 'all-dates' : state.adminDateFilter) + '.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function setTab(t){
+    state.tab = t;
+    state.locSaveMsg = '';
+    render();
+    if(t === 'clock'){ checkGeoPermission().then(render); }
+    if(t === 'admin' && state.adminUnlocked){ refreshData(); }
+  }
+
+  function renderClockTab(){
+    if(!state.config){
+      return `
+        <div class="card locked">
+          <h2>Location not set up yet</h2>
+          <p>Ask your admin to configure the school location in the Admin tab before teachers can check in.</p>
+        </div>`;
+    }
+
+    let permissionCard = '';
+    if(state.geoPermission === 'denied'){
+      permissionCard = `
+        <div class="card">
+          <h2>Location access is off</h2>
+          <p class="hint">This site can't check you in without it. Allow location for this site in your browser settings, then refresh the page.</p>
+          <button class="btn btn-outline" id="enable-location-btn">Try again</button>
+        </div>`;
+    } else if(!state.hasGrantedBefore && (state.geoPermission === 'prompt' || state.geoPermission === 'unsupported' || state.geoPermission === 'unknown')){
+      permissionCard = `
+        <div class="card">
+          <h2>Turn on location to check in</h2>
+          <p class="hint">We only use it for a moment, to confirm you're at ${state.config.name}. You'll only need to do this once on this device.</p>
+          <button class="btn btn-brass" id="enable-location-btn">Allow location access</button>
+        </div>`;
+    }
+
+    const checkedIn = state.teacherName.trim() ? isCheckedIn(state.teacherName.trim()) : false;
+    const last = state.teacherName.trim() ? lastRecordFor(state.teacherName.trim()) : null;
+
+    let statusHtml = '';
+    if(state.geoStatus){
+      const cls = state.geoStatus.ok === true ? 'ok' : state.geoStatus.ok === false ? 'bad' : 'wait';
+      statusHtml = `<div class="status-line"><span class="dot ${cls}"></span>${state.geoStatus.message}</div>`;
+    }
+
+    let stampHtml = '';
+    if(state.lastStamp){
+      stampHtml = `<div class="stamp-wrap"><div class="stamp ${state.lastStamp.type}">${state.lastStamp.type === 'in' ? 'Clocked In' : 'Clocked Out'}<small>${fmtTime(state.lastStamp.ts)}</small></div></div>`;
+    }
+
+    const teacherList = Array.isArray(state.config.teachers) ? state.config.teachers : [];
+    const nameField = teacherList.length
+      ? `<select id="teacher-name">
+          <option value="">Select your name…</option>
+          ${teacherList.map(t => `<option value="${t.replace(/"/g,'&quot;')}" ${state.teacherName === t ? 'selected' : ''}>${t}</option>`).join('')}
+        </select>`
+      : `<input type="text" id="teacher-name" placeholder="e.g. Jordan Blake" value="${state.teacherName.replace(/"/g,'&quot;')}" />
+         <p class="hint" style="margin-top:-10px;">Ask your admin to add teacher names in the Admin tab for a dropdown here.</p>`;
+
+    const manualTimeHtml = !checkedIn ? `
+      <label class="checkbox-row">
+        <input type="checkbox" id="manual-time-toggle" ${state.manualTimeEnabled ? 'checked' : ''} />
+        I arrived at a different time than right now
+      </label>
+      ${state.manualTimeEnabled ? `<input type="time" id="manual-time-input" value="${state.manualTimeValue || nowTimeStr()}" />` : ''}
+    ` : `
+      <p class="hint" style="margin-top:-10px;">Already off-site? You can still clock out — it'll just be noted.</p>
+    `;
+
+    return `
+      ${permissionCard}
+      <div class="card">
+        <h2>${state.config.name}</h2>
+        <p class="hint">${checkedIn ? 'Clocking out doesn\'t require being on-site.' : 'Check in only works within ' + state.config.radius + 'm of this location.'}</p>
+        <label for="teacher-name">Your name</label>
+        ${nameField}
+        ${manualTimeHtml}
+        ${statusHtml}
+        ${stampHtml}
+        <button class="btn btn-primary btn-block" id="clock-btn" ${state.checking ? 'disabled' : ''}>
+          ${state.checking ? 'Checking location…' : (checkedIn ? 'Clock Out' : 'Clock In')}
+        </button>
+        ${last ? `<p class="hint" style="margin-top:14px;">Last action: ${last.type === 'in' ? 'Clocked in' : 'Clocked out'} ${fmtTime(last.ts)}</p>` : ''}
+      </div>
+    `;
+  }
+
+  function renderAdminTab(){
+    if(!state.adminUnlocked){
+      return `
+        <div class="card">
+          <h2>Admin login</h2>
+          <p class="hint">Enter the admin passcode to manage location settings and view all hours.</p>
+          <label for="admin-pass">Passcode</label>
+          <input type="password" id="admin-pass" placeholder="${state.config ? '' : 'default: ' + ADMIN_PASS_DEFAULT}" />
+          ${state.adminError ? `<div class="banner">${state.adminError}</div>` : ''}
+          <button class="btn btn-primary" id="admin-login-btn">Unlock admin</button>
+        </div>
+      `;
+    }
+
+    if(!state.adminDateFilter) state.adminDateFilter = todayStr();
+    const filteredRecords = getFilteredRecords();
+    const totals = computeTotals(filteredRecords);
+    const totalRows = Object.keys(totals).length
+      ? Object.entries(totals).sort((a,b)=> b[1]-a[1]).map(([name,hrs]) => `<div class="totals-row"><span>${name}</span><span class="hrs">${fmtHours(hrs)}</span></div>`).join('')
+      : `<p class="empty">No completed shifts ${state.showAllDates ? 'yet' : 'on this day'}.</p>`;
+
+    const sortedRecords = [...filteredRecords].sort((a,b)=> new Date(b.ts) - new Date(a.ts));
+    const recordRows = sortedRecords.length
+      ? sortedRecords.map(r => {
+          const notes = [];
+          if(r.timeAdjusted) notes.push('Adjusted time');
+          if(r.locationUnavailable) notes.push('No location');
+          else if(r.offSite) notes.push('Off-site');
+          const noteHtml = notes.length ? notes.join(', ') : '—';
+          const distHtml = (r.distance === null || r.distance === undefined) ? '—' : r.distance + 'm';
+          return `<tr><td class="name">${r.teacherName}</td><td>${r.type === 'in' ? 'Clock In' : 'Clock Out'}</td><td>${fmtTime(r.ts)}</td><td>${distHtml}</td><td>${noteHtml}</td></tr>`;
+        }).join('')
+      : `<tr><td colspan="5" class="empty">No check-ins ${state.showAllDates ? 'recorded yet' : 'on this day'}.</td></tr>`;
+
+    return `
+      <div class="card">
+        <h2>School location</h2>
+        <p class="hint">Stand at the school and tap "Use my current location," or enter coordinates manually. This applies to every teacher checking in.</p>
+        <form id="config-form">
+          <label for="cfg-name">Location name</label>
+          <input type="text" id="cfg-name" value="${state.config ? state.config.name.replace(/"/g,'&quot;') : ''}" placeholder="Lincoln Elementary" />
+          <div class="btn-row" style="margin-bottom:14px;">
+            <button type="button" class="btn btn-outline" id="use-location-btn">Use my current location</button>
+          </div>
+          <label for="cfg-lat">Latitude</label>
+          <input type="number" step="any" id="cfg-lat" value="${state.config ? state.config.lat : ''}" placeholder="33.7490" />
+          <label for="cfg-lng">Longitude</label>
+          <input type="number" step="any" id="cfg-lng" value="${state.config ? state.config.lng : ''}" placeholder="-84.3880" />
+          <label for="cfg-radius">Allowed radius (meters)</label>
+          <input type="number" id="cfg-radius" value="${state.config ? state.config.radius : 300}" />
+          ${state.locSaveMsg ? `<div class="banner">${state.locSaveMsg}</div>` : ''}
+          <button type="submit" class="btn btn-brass">Save location</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>Teachers</h2>
+        <p class="hint">These show up as a dropdown on the Clock tab. Add one per line, or separate names with commas — the list is saved permanently and stays the same every day.</p>
+        <form id="add-teacher-form">
+          <label for="new-teacher-input">Add teachers</label>
+          <textarea id="new-teacher-input" rows="3" placeholder="Jordan Blake&#10;Sam Rivera, Alex Chen">${state.newTeacherInput.replace(/</g,'&lt;')}</textarea>
+          <button type="submit" class="btn btn-brass" style="margin-top:2px;">Add</button>
+        </form>
+        <div style="margin-top:16px;">
+        ${(state.config.teachers && state.config.teachers.length)
+          ? state.config.teachers.map(t => `<div class="teacher-row"><span>${t}</span><button class="remove-btn" data-teacher="${t.replace(/"/g,'&quot;')}">Remove</button></div>`).join('')
+          : `<p class="empty">No teachers added yet.</p>`}
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Change admin passcode</h2>
+        <form id="pass-form">
+          <label for="new-pass">New passcode</label>
+          <input type="text" id="new-pass" placeholder="At least 4 characters" />
+          <button type="submit" class="btn btn-outline">Update passcode</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>Browse by day</h2>
+        <div class="btn-row" style="align-items:center; flex-wrap:wrap;">
+          <input type="date" id="date-filter" value="${state.adminDateFilter}" style="flex:1; min-width:150px; margin-bottom:0;" ${state.showAllDates ? 'disabled' : ''} />
+          <button type="button" class="btn btn-outline" id="today-btn">Today</button>
+        </div>
+        <label class="checkbox-row" style="margin-top:12px; margin-bottom:0;">
+          <input type="checkbox" id="show-all-dates" ${state.showAllDates ? 'checked' : ''} />
+          Show all dates instead
+        </label>
+      </div>
+
+      <div class="card">
+        <h2>Total hours — ${state.showAllDates ? 'all dates' : state.adminDateFilter}</h2>
+        ${totalRows}
+      </div>
+
+      <div class="card">
+        <div class="btn-row" style="justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <h2 style="margin:0;">Check-ins — ${state.showAllDates ? 'all dates' : state.adminDateFilter}</h2>
+          <button class="btn btn-outline" id="export-btn">Export CSV</button>
+        </div>
+        <table>
+          <thead><tr><th>Teacher</th><th>Action</th><th>Time</th><th>Distance</th><th>Note</th></tr></thead>
+          <tbody>${recordRows}</tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  function render(){
+    app.innerHTML = `
+      <header class="bar">
+        <p class="eyebrow">Chaya Mushka</p>
+        <h1>${state.config ? state.config.name : 'Chabad Academy'}</h1>
+        <p class="sub">Sign in and out from your phone — only works on site.</p>
+      </header>
+      <div class="tabs">
+        <button class="tab ${state.tab==='clock'?'active':''}" data-tab="clock">Clock</button>
+        <button class="tab ${state.tab==='admin'?'active':''}" data-tab="admin">Admin</button>
+      </div>
+      <main>
+        ${state.tab === 'clock' ? renderClockTab() : renderAdminTab()}
+      </main>
+    `;
+
+    document.querySelectorAll('.tab').forEach(el => el.addEventListener('click', ()=> setTab(el.dataset.tab)));
+
+    if(state.tab === 'clock'){
+      const nameInput = document.getElementById('teacher-name');
+      if(nameInput){
+        const eventType = nameInput.tagName === 'SELECT' ? 'change' : 'input';
+        nameInput.addEventListener(eventType, (e)=> {
+          state.teacherName = e.target.value;
+          state.geoStatus = null;
+          state.lastStamp = null;
+          if(eventType === 'change') render();
+        });
+      }
+      const clockBtn = document.getElementById('clock-btn');
+      if(clockBtn) clockBtn.addEventListener('click', handleClockAction);
+      const enableBtn = document.getElementById('enable-location-btn');
+      if(enableBtn) enableBtn.addEventListener('click', handleEnableLocation);
+      const manualToggle = document.getElementById('manual-time-toggle');
+      if(manualToggle){
+        manualToggle.addEventListener('change', (e)=>{
+          state.manualTimeEnabled = e.target.checked;
+          if(state.manualTimeEnabled && !state.manualTimeValue) state.manualTimeValue = nowTimeStr();
+          render();
+        });
+      }
+      const manualInput = document.getElementById('manual-time-input');
+      if(manualInput){
+        manualInput.addEventListener('input', (e)=>{ state.manualTimeValue = e.target.value; });
+      }
+    }
+
+    if(state.tab === 'admin'){
+      if(!state.adminUnlocked){
+        const loginBtn = document.getElementById('admin-login-btn');
+        if(loginBtn) loginBtn.addEventListener('click', handleAdminLogin);
+      } else {
+        const useLocBtn = document.getElementById('use-location-btn');
+        if(useLocBtn) useLocBtn.addEventListener('click', handleUseMyLocation);
+        const cfgForm = document.getElementById('config-form');
+        if(cfgForm) cfgForm.addEventListener('submit', handleSaveConfig);
+        const passForm = document.getElementById('pass-form');
+        if(passForm) passForm.addEventListener('submit', handleChangePasscode);
+        const exportBtn = document.getElementById('export-btn');
+        if(exportBtn) exportBtn.addEventListener('click', exportCSV);
+        const addTeacherForm = document.getElementById('add-teacher-form');
+        if(addTeacherForm) addTeacherForm.addEventListener('submit', handleAddTeacher);
+        document.querySelectorAll('.remove-btn').forEach(btn=>{
+          btn.addEventListener('click', ()=> handleRemoveTeacher(btn.dataset.teacher));
+        });
+        const dateFilter = document.getElementById('date-filter');
+        if(dateFilter) dateFilter.addEventListener('change', (e)=>{ state.adminDateFilter = e.target.value; render(); });
+        const todayBtn = document.getElementById('today-btn');
+        if(todayBtn) todayBtn.addEventListener('click', ()=>{ state.adminDateFilter = todayStr(); state.showAllDates = false; render(); });
+        const showAllChk = document.getElementById('show-all-dates');
+        if(showAllChk) showAllChk.addEventListener('change', (e)=>{ state.showAllDates = e.target.checked; render(); });
+      }
+    }
+  }
+
+  loadAll();
+})();
+</script>
+</body>
+</html>
