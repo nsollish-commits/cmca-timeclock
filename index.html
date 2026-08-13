@@ -415,19 +415,21 @@
 
   async function saveConfig(cfg){
     state.config = cfg;
-    await fetch('/api/config', {
+    const res = await fetch('/api/config', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(cfg)
     });
+    if(!res.ok) throw new Error('Saving settings failed (server said ' + res.status + '). Nothing was saved — try again.');
   }
 
   async function saveRecords(){
-    await fetch('/api/records', {
+    const res = await fetch('/api/records', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(state.records)
     });
+    if(!res.ok) throw new Error('Saving your check-in failed (server said ' + res.status + '). Please try again — nothing was recorded.');
   }
 
   function fmtTime(ts){
@@ -520,8 +522,12 @@
     }
     const adminPass = (state.config && state.config.adminPass) || ADMIN_PASS_DEFAULT;
     const teachers = (state.config && state.config.teachers) || [];
-    await saveConfig({ name, lat, lng, radius, adminPass, teachers });
-    state.locSaveMsg = 'Saved. Teachers can now check in within ' + radius + 'm of ' + name + '.';
+    try{
+      await saveConfig({ name, lat, lng, radius, adminPass, teachers });
+      state.locSaveMsg = 'Saved. Teachers can now check in within ' + radius + 'm of ' + name + '.';
+    }catch(e){
+      state.locSaveMsg = e.message || 'Save failed — please try again.';
+    }
     render();
   }
 
@@ -530,8 +536,12 @@
     const val = document.getElementById('new-pass').value.trim();
     if(val.length < 4){ state.locSaveMsg = 'Passcode must be at least 4 characters.'; render(); return; }
     const cfg = { ...state.config, adminPass: val };
-    await saveConfig(cfg);
-    state.locSaveMsg = 'Admin passcode updated.';
+    try{
+      await saveConfig(cfg);
+      state.locSaveMsg = 'Admin passcode updated.';
+    }catch(e){
+      state.locSaveMsg = e.message || 'Save failed — please try again.';
+    }
     render();
   }
 
@@ -552,17 +562,25 @@
       added++;
     }
     teachers.sort((a,b)=> a.localeCompare(b));
-    await saveConfig({ ...state.config, teachers });
-    state.newTeacherInput = '';
-    state.locSaveMsg = added
-      ? 'Added ' + added + ' teacher' + (added === 1 ? '' : 's') + (skipped ? ' (' + skipped + ' already on the list).' : '.')
-      : 'Everyone on that list is already added.';
+    try{
+      await saveConfig({ ...state.config, teachers });
+      state.newTeacherInput = '';
+      state.locSaveMsg = added
+        ? 'Added ' + added + ' teacher' + (added === 1 ? '' : 's') + (skipped ? ' (' + skipped + ' already on the list).' : '.')
+        : 'Everyone on that list is already added.';
+    }catch(e){
+      state.locSaveMsg = e.message || 'Save failed — please try again.';
+    }
     render();
   }
 
   async function handleRemoveTeacher(name){
     const teachers = (state.config.teachers || []).filter(t => t !== name);
-    await saveConfig({ ...state.config, teachers });
+    try{
+      await saveConfig({ ...state.config, teachers });
+    }catch(e){
+      state.locSaveMsg = e.message || 'Save failed — please try again.';
+    }
     render();
   }
 
@@ -593,69 +611,76 @@
     state.geoStatus = { ok:null, message: 'Checking your location…' };
     render();
 
+    // Step 1: try to get location. A failure here just means we don't know where they are —
+    // it's only a hard blocker for check-in; clock-out can still proceed without it.
+    let coords = null;
+    let locationError = null;
     try{
-      const coords = await getLocation();
+      coords = await getLocation();
       await checkGeoPermission();
-      await markGrantedBefore();
-      const dist = haversine(coords.latitude, coords.longitude, state.config.lat, state.config.lng);
-      const within = dist <= state.config.radius;
-      state.checking = false;
+      markGrantedBefore();
+    }catch(e){
+      await checkGeoPermission();
+      locationError = e;
+    }
 
-      if(nextType === 'in' && !within){
+    let dist = null;
+    let within = false;
+    if(coords){
+      dist = haversine(coords.latitude, coords.longitude, state.config.lat, state.config.lng);
+      within = dist <= state.config.radius;
+    }
+
+    state.checking = false;
+
+    if(nextType === 'in'){
+      if(locationError){
+        state.geoStatus = { ok:false, message: geoErrorMessage(locationError) };
+        render();
+        return;
+      }
+      if(!within){
         state.geoStatus = { ok:false, message: 'You\'re not close enough to ' + state.config.name + ' to check in.' };
         render();
         return;
       }
-
-      const offSite = nextType === 'out' && !within;
-      const record = {
-        id: 'r_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
-        teacherName: name,
-        type: nextType,
-        ts: tsDate.toISOString(),
-        distance: Math.round(dist),
-        offSite: offSite,
-        timeAdjusted: timeAdjusted
-      };
-      state.records.push(record);
-      await saveRecords();
-      await rememberTeacher(name);
-
-      state.geoStatus = offSite
-        ? { ok:true, message: 'Clocked out — you\'re away from ' + state.config.name + ', so this was noted.' }
-        : { ok:true, message: 'You\'re in range at ' + state.config.name + '.' };
-      state.lastStamp = { type: nextType, ts: record.ts };
-      state.manualTimeEnabled = false;
-      state.manualTimeValue = '';
-      render();
-    }catch(e){
-      state.checking = false;
-      await checkGeoPermission();
-
-      // Clocking out shouldn't be blocked just because location isn't available (e.g. they've already left).
-      if(nextType === 'out'){
-        const record = {
-          id: 'r_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
-          teacherName: name,
-          type: 'out',
-          ts: new Date().toISOString(),
-          distance: null,
-          offSite: true,
-          timeAdjusted: false,
-          locationUnavailable: true
-        };
-        state.records.push(record);
-        await saveRecords();
-        await rememberTeacher(name);
-        state.geoStatus = { ok:true, message: 'Clocked out — location wasn\'t available, so this was noted.' };
-        state.lastStamp = { type: 'out', ts: record.ts };
-        render();
-        return;
-      }
-
-      state.geoStatus = { ok:false, message: geoErrorMessage(e) };
-      render();
     }
+
+    const offSite = nextType === 'out' && coords && !within;
+    const locationUnavailable = nextType === 'out' && !coords;
+
+    const record = {
+      id: 'r_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+      teacherName: name,
+      type: nextType,
+      ts: tsDate.toISOString(),
+      distance: coords ? Math.round(dist) : null,
+      offSite: offSite,
+      timeAdjusted: timeAdjusted,
+      locationUnavailable: locationUnavailable
+    };
+
+    // Step 2: save. If this fails, don't pretend it worked — roll back and say so.
+    state.records.push(record);
+    try{
+      await saveRecords();
+    }catch(saveErr){
+      state.records = state.records.filter(r => r.id !== record.id);
+      state.geoStatus = { ok:false, message: saveErr.message || 'Could not save your check-in. Please try again.' };
+      render();
+      return;
+    }
+    rememberTeacher(name);
+
+    state.geoStatus = offSite
+      ? { ok:true, message: 'Clocked out — you\'re away from ' + state.config.name + ', so this was noted.' }
+      : locationUnavailable
+        ? { ok:true, message: 'Clocked out — location wasn\'t available, so this was noted.' }
+        : { ok:true, message: 'You\'re in range at ' + state.config.name + '.' };
+    state.lastStamp = { type: nextType, ts: record.ts };
+    state.manualTimeEnabled = false;
+    state.manualTimeValue = '';
+    render();
   }
 
   function handleAdminLogin(ev){
