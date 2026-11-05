@@ -5,23 +5,29 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Chabad Academy Time Clock</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,600&family=Poppins:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Quicksand:wght@500;600;700&display=swap');
 
-  /* CMCA brand palette — Zodiac (navy), Botticelli (pale blue), Spindle (mid blue), Saffron (yellow) */
+  /* Neutral palette from the champs color wave — mist, slate, blush, aqua, greige */
   :root{
-    --ink: #152F50;         /* Zodiac */
-    --chalkboard: #152F50;  /* Zodiac */
-    --chalkboard-dark: #0E2038;
-    --chalk: #E7F1FB;       /* Botticelli, used as light text on navy */
-    --paper: #E7F1FB;       /* Botticelli */
-    --paper-dim: #F3F8FD;
+    --ink: #425656;
+    --ink-soft: #577070;
+    --header-bg: #D5E5E5;
+    --paper: #F1F7F7;
     --card: #FFFFFF;
-    --brass: #F9CE5F;       /* Saffron */
-    --brass-dark: #C79A2E;
-    --rule: #B1C5EC;        /* Spindle */
-    --stamp-green: #152F50; /* Zodiac, used for the "in" stamp */
-    --stamp-red: #B3432B;   /* functional-only error state, not a brand color */
-    --muted: #5C7093;
+    --aqua: #A6D0D2;
+    --aqua-dark: #467073;
+    --blush: #F7CBCA;
+    --blush-dark: #A85F5B;
+    --greige: #DDD3D3;
+    --rule: #D5E5E5;
+    --rule-strong: #B9CFCF;
+    --green: #4E7D6A;
+    --green-soft: #E2EFEB;
+    --red: #B3432B;
+    --red-soft: #FBEDEA;
+    --amber: #8A5A00;
+    --amber-soft: #FDF3DC;
+    --muted: #577070;
   }
 
   *{ box-sizing:border-box; }
@@ -30,89 +36,109 @@
     margin:0;
     background: var(--paper);
     color: var(--ink);
-    font-family:'Poppins', sans-serif;
+    font-family:'Nunito', sans-serif;
     min-height:100vh;
+    -webkit-font-smoothing: antialiased;
   }
 
-  .app{ max-width: 720px; margin: 0 auto; padding: 0 0 64px; }
+  .app{ max-width: 680px; margin: 0 auto; padding: 0 0 72px; }
 
   header.bar{
-    background: var(--chalkboard);
-    color: var(--chalk);
-    padding: 28px 24px 24px;
-    border-bottom: 4px solid var(--brass);
+    background: var(--header-bg);
+    color: var(--ink);
+    padding: 30px 24px 26px;
+    border-radius: 0 0 28px 28px;
+    box-shadow: 0 8px 24px rgba(93,107,107,0.10);
   }
   header.bar .eyebrow{
-    font-family:'Poppins', sans-serif;
     font-weight:600;
-    font-size: 12px;
-    letter-spacing: 0.14em;
+    font-size: 11px;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: var(--brass);
+    color: var(--blush-dark);
     margin: 0 0 6px;
   }
   header.bar h1{
-    font-family:'Lora', serif;
-    font-weight:600;
-    font-size: 32px;
+    font-family:'Quicksand', sans-serif;
+    font-weight:700;
+    font-size: 30px;
+    line-height: 1.15;
     margin: 0;
     letter-spacing: -0.01em;
   }
   header.bar .sub{
-    font-family:'Poppins', sans-serif;
     font-size: 14px;
-    color: #A9C1E8;
-    margin-top: 6px;
+    color: var(--ink-soft);
+    margin: 8px 0 0;
+  }
+  header.bar .today{
+    font-family:'Nunito', sans-serif;
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin: 10px 0 0;
   }
 
   .tabs{
     display:flex;
-    gap: 0;
     margin: 20px 24px 0;
-    border-bottom: 1px solid var(--rule);
+    background: #E6EFEF;
+    border-radius: 999px;
+    padding: 4px;
   }
   .tab{
-    font-family:'Poppins', sans-serif;
-    font-weight:600;
+    font-family:'Nunito', sans-serif;
+    font-weight:700;
     font-size: 12px;
-    letter-spacing:0.06em;
-    padding: 10px 4px;
-    margin-right: 24px;
+    letter-spacing:0.08em;
+    padding: 10px 18px;
+    margin-right: 4px;
     color: var(--muted);
     cursor:pointer;
-    border-bottom: 2px solid transparent;
-    background:none; border:none;
+    border: none;
+    border-radius: 999px;
+    background:none;
     text-transform: uppercase;
+    flex: 1;
   }
-  .tab.active{ color: var(--chalkboard); border-bottom-color: var(--brass); font-weight:600; }
+  .tab.active{ color: var(--ink); background: var(--card); box-shadow: 0 2px 8px rgba(93,107,107,0.12); }
 
-  main{ padding: 28px 24px 0; }
+  main{ padding: 24px 24px 0; }
 
   .card{
     background: var(--card);
-    border: 1px solid var(--rule);
-    border-radius: 6px;
+    border: 1px solid rgba(93,107,107,0.08);
+    border-radius: 24px;
     padding: 24px;
-    margin-bottom: 20px;
-    position: relative;
-    box-shadow: 0 1px 2px rgba(21,47,80,0.05);
+    margin-bottom: 16px;
+    box-shadow: 0 10px 30px rgba(93,107,107,0.08);
   }
   .card h2{
-    font-family:'Lora', serif;
-    font-size: 19px;
-    font-weight:600;
+    font-family:'Quicksand', sans-serif;
+    font-size: 20px;
+    font-weight:700;
     margin: 0 0 4px;
     color: var(--ink);
   }
   .card .hint{
     font-size: 13px;
+    line-height: 1.5;
     color: var(--muted);
-    margin: 0 0 18px;
+    margin: 0 0 16px;
   }
+  .card .hint:last-child{ margin-bottom: 0; }
+
+  .section-label{
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 26px 2px 10px;
+  }
+  .section-label:first-child{ margin-top: 0; }
 
   label{
     display:block;
-    font-family:'Poppins', sans-serif;
     font-weight:600;
     font-size: 11px;
     text-transform: uppercase;
@@ -120,120 +146,134 @@
     color: var(--muted);
     margin-bottom: 6px;
   }
-  input[type=text], input[type=password], input[type=number], select{
+  input[type=text], input[type=password], input[type=number], input[type=date], select, textarea{
     width:100%;
-    font-family:'Poppins', sans-serif;
+    font-family:'Nunito', sans-serif;
     font-size: 15px;
-    padding: 10px 12px;
-    border: 1px solid var(--rule);
-    border-radius: 4px;
+    padding: 13px 14px;
+    border: 1px solid var(--rule-strong);
+    border-radius: 16px;
     background: #fff;
     color: var(--ink);
-    margin-bottom: 16px;
+    margin-bottom: 14px;
   }
-  select{ appearance: none; -webkit-appearance:none; background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%); background-position: calc(100% - 20px) calc(1.1em), calc(100% - 15px) calc(1.1em); background-size: 5px 5px, 5px 5px; background-repeat: no-repeat; }
-  input:focus, select:focus{ outline: 2px solid var(--brass); outline-offset: 1px; }
-
   input[type=time]{
     width:100%;
-    font-family:'Poppins', sans-serif;
-    font-size: 15px;
-    padding: 10px 12px;
-    border: 1px solid var(--rule);
-    border-radius: 4px;
+    font-family:'Nunito', sans-serif;
+    font-size: 16px;
+    padding: 13px 14px;
+    border: 1px solid var(--rule-strong);
+    border-radius: 16px;
     background: #fff;
     color: var(--ink);
-    margin-bottom: 16px;
+    margin-bottom: 14px;
   }
+  select{ appearance: none; -webkit-appearance:none; background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%); background-position: calc(100% - 20px) calc(1.15em), calc(100% - 15px) calc(1.15em); background-size: 5px 5px, 5px 5px; background-repeat: no-repeat; }
+  input:focus, select:focus, textarea:focus{ outline: 2px solid var(--aqua-dark); outline-offset: 1px; border-color: var(--aqua-dark); }
+  textarea{ resize: vertical; }
+
   .checkbox-row{
     display:flex;
-    align-items:center;
-    gap: 8px;
-    font-family:'Poppins', sans-serif;
+    align-items:flex-start;
+    gap: 9px;
     font-size: 13px;
+    line-height: 1.45;
     text-transform: none;
     letter-spacing: normal;
-    color: var(--muted);
-    margin-bottom: 12px;
+    color: var(--ink-soft);
+    margin-bottom: 14px;
     cursor: pointer;
+    font-weight: 400;
   }
-  .checkbox-row input[type=checkbox]{ width:16px; height:16px; margin:0; flex-shrink:0; }
-
-  textarea{
-    width:100%;
-    font-family:'Poppins', sans-serif;
-    font-size: 15px;
-    padding: 10px 12px;
-    border: 1px solid var(--rule);
-    border-radius: 4px;
-    background: #fff;
-    color: var(--ink);
-    margin-bottom: 12px;
-    resize: vertical;
-  }
-  textarea:focus{ outline: 2px solid var(--brass); outline-offset: 1px; }
-  .teacher-row{ display:flex; align-items:center; justify-content:space-between; padding: 8px 0; border-bottom: 1px solid var(--rule); }
-  .teacher-row:last-child{ border-bottom:none; }
-  .teacher-row .remove-btn{ background:none; border:none; color: var(--stamp-red); cursor:pointer; font-family:'Poppins', sans-serif; font-size: 12px; font-weight:600; }
+  .checkbox-row input[type=checkbox]{ width:18px; height:18px; margin:1px 0 0; flex-shrink:0; accent-color: var(--ink); }
 
   .btn{
-    font-family:'Poppins', sans-serif;
-    font-weight:600;
+    font-family:'Nunito', sans-serif;
+    font-weight:700;
     font-size: 14px;
-    padding: 11px 20px;
-    border-radius: 5px;
+    padding: 12px 22px;
+    border-radius: 999px;
     border: none;
     cursor:pointer;
-    transition: transform .05s ease;
+    transition: transform .05s ease, opacity .15s ease;
   }
   .btn:active{ transform: translateY(1px); }
-  .btn:disabled{ opacity:0.5; cursor:not-allowed; }
-  .btn-primary{ background: var(--chalkboard); color: var(--chalk); }
-  .btn-brass{ background: var(--brass); color: #2b1e02; }
-  .btn-outline{ background:transparent; border:1px solid var(--rule); color: var(--ink); }
-  .btn-block{ width:100%; padding: 15px; font-size: 15px; }
+  .btn:disabled{ opacity:0.45; cursor:not-allowed; }
+  .btn-primary{ background: var(--aqua); color: var(--ink); }
+  .btn-brass{ background: var(--blush); color: var(--ink); }
+  .btn-outline{ background:transparent; border:1px solid var(--rule-strong); color: var(--ink); }
+  .btn-danger-outline{ background:transparent; border:1px solid var(--red); color: var(--red); }
+  .btn-block{ width:100%; padding: 16px; font-size: 16px; min-height: 56px; }
   .btn-row{ display:flex; gap:10px; flex-wrap:wrap; }
+
+  /* Current-status pill */
+  .status-pill{
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    padding: 13px 16px;
+    border-radius: 999px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  .status-pill .dot{ width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+  .status-pill.in{ background: var(--green-soft); color: #14532D; }
+  .status-pill.in .dot{ background: var(--green); }
+  .status-pill.out{ background: var(--paper); color: var(--muted); border: 1px solid var(--rule); }
+  .status-pill.out .dot{ background: var(--muted); }
+  .status-pill .elapsed{ font-family:'Nunito', sans-serif; font-size: 13px; font-weight: 600; margin-left: auto; white-space: nowrap; }
 
   .status-line{
     display:flex;
-    align-items:center;
+    align-items:flex-start;
     gap: 8px;
-    font-family:'IBM Plex Mono', monospace;
     font-size: 13px;
-    margin-bottom: 16px;
-    padding: 10px 12px;
-    border-radius: 4px;
-    background: var(--paper-dim);
+    line-height: 1.5;
+    margin-bottom: 14px;
+    padding: 11px 14px;
+    border-radius: 14px;
   }
-  .dot{ width:8px; height:8px; border-radius:50%; flex-shrink:0; }
-  .dot.ok{ background: var(--stamp-green); }
-  .dot.bad{ background: var(--stamp-red); }
-  .dot.wait{ background: var(--brass); }
+  .status-line.ok{ background: var(--green-soft); color: #14532D; }
+  .status-line.bad{ background: var(--red-soft); color: #7A2415; }
+  .status-line.wait{ background: var(--amber-soft); color: var(--amber); }
+
+  /* Missed clock-out card */
+  .missed-card{
+    background: var(--blush);
+    border: 1px solid var(--blush-dark);
+    border-radius: 24px;
+    padding: 20px 22px;
+    margin-bottom: 16px;
+  }
+  .missed-card h2{ font-family:'Quicksand', sans-serif; font-size: 19px; font-weight:700; margin: 0 0 6px; color: var(--ink); }
+  .missed-card p{ font-size: 13px; line-height: 1.55; color: var(--ink-soft); margin: 0 0 14px; }
+  .missed-card .btn-row{ margin-top: 4px; }
 
   .stamp-wrap{
     position: relative;
-    min-height: 90px;
+    min-height: 96px;
     display:flex; align-items:center; justify-content:center;
-    margin: 6px 0 4px;
+    margin: 4px 0 8px;
   }
   .stamp{
-    font-family:'Lora', serif;
+    font-family:'Quicksand', sans-serif;
     font-weight:700;
     font-size: 26px;
     letter-spacing: 0.04em;
     padding: 14px 28px;
     border: 3px solid currentColor;
-    border-radius: 8px;
-    transform: rotate(-4deg) scale(1);
-    opacity: 1;
+    border-radius: 18px;
+    transform: rotate(-2deg);
     text-transform: uppercase;
+    text-align:center;
     animation: stampdown 0.35s cubic-bezier(.2,1.4,.5,1);
   }
-  .stamp.in{ color: var(--stamp-green); }
-  .stamp.out{ color: var(--brass-dark); }
+  .stamp.in{ color: var(--green); }
+  .stamp.out{ color: var(--aqua-dark); }
   .stamp small{
     display:block;
-    font-family:'IBM Plex Mono', monospace;
+    font-family:'Nunito', sans-serif;
     font-size: 12px;
     font-weight: 500;
     letter-spacing: 0.02em;
@@ -241,17 +281,35 @@
     text-transform: none;
   }
   @keyframes stampdown{
-    0%{ transform: rotate(-4deg) scale(2.4); opacity:0; }
-    60%{ transform: rotate(-4deg) scale(0.92); opacity:1; }
-    100%{ transform: rotate(-4deg) scale(1); opacity:1; }
+    0%{ transform: rotate(-2deg) scale(2.4); opacity:0; }
+    60%{ transform: rotate(-2deg) scale(0.92); opacity:1; }
+    100%{ transform: rotate(-2deg) scale(1); opacity:1; }
+  }
+
+  .punch-list{ list-style:none; margin:0; padding:0; }
+  .punch-list li{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap: 12px;
+    padding: 9px 0;
+    border-bottom: 1px dashed var(--rule);
+    font-size: 14px;
+  }
+  .punch-list li:last-child{ border-bottom:none; }
+  .punch-list .when{ font-family:'Nunito', sans-serif; font-size: 13px; color: var(--ink-soft); }
+  .punch-list .flag{
+    font-size: 11px; font-weight: 600; color: var(--amber);
+    background: var(--amber-soft); border-radius: 999px; padding: 2px 8px; margin-left: 6px;
+    white-space: nowrap;
   }
 
   table{ width:100%; border-collapse: collapse; font-size: 13px; }
   th, td{
     text-align:left;
-    padding: 9px 10px;
+    padding: 9px 8px;
     border-bottom: 1px solid var(--rule);
-    font-family:'IBM Plex Mono', monospace;
+    vertical-align: top;
   }
   th{
     font-size: 11px;
@@ -260,33 +318,63 @@
     color: var(--muted);
     font-weight:600;
   }
-  td.name{ font-family:'Poppins', sans-serif; font-weight:500; }
+  td{ font-family:'Nunito', sans-serif; font-size: 12.5px; }
+  td.name{ font-family:'Nunito', sans-serif; font-weight:500; font-size: 13px; }
   .empty{ color: var(--muted); font-size: 13px; font-style: italic; }
+  .rowbtn{
+    background:none; border:none; cursor:pointer;
+    font-family:'Nunito', sans-serif; font-size: 12px; font-weight:600;
+    color: var(--red); padding: 2px 4px;
+  }
 
-  .totals-row{ display:flex; justify-content:space-between; padding: 8px 0; border-bottom: 1px dashed var(--rule); font-family:'IBM Plex Mono', monospace; font-size: 13px; }
+  .totals-row{ display:flex; justify-content:space-between; gap: 12px; padding: 9px 0; border-bottom: 1px dashed var(--rule); font-family:'Nunito', sans-serif; font-size: 13px; }
   .totals-row:last-child{ border-bottom:none; }
-  .totals-row .hrs{ font-weight:600; color: var(--chalkboard); }
+  .totals-row .hrs{ font-weight:600; color: var(--ink); white-space: nowrap; }
+
+  .teacher-row{ display:flex; align-items:center; justify-content:space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--rule); font-size: 14px; }
+  .teacher-row:last-child{ border-bottom:none; }
+  .teacher-row .remove-btn{ background:none; border:none; color: var(--red); cursor:pointer; font-family:'Nunito', sans-serif; font-size: 12px; font-weight:600; }
 
   .banner{
-    background: #FDF3DC;
-    border: 1px solid var(--brass);
-    color: #7A5A0E;
-    padding: 12px 14px;
-    border-radius: 5px;
+    background: var(--blush);
+    border: 1px solid var(--blush-dark);
+    color: var(--ink);
+    padding: 12px 16px;
+    border-radius: 14px;
     font-size: 13px;
-    margin-bottom: 18px;
+    line-height: 1.5;
+    margin-bottom: 16px;
   }
-  .locked{
-    text-align:center;
-    padding: 40px 20px;
-    color: var(--muted);
-  }
-  .locked h2{ font-family:'Lora', serif; color: var(--ink); }
+  .banner.error{ background: var(--red-soft); border-color: #E5B7AD; color: #7A2415; }
 
-  a.link-btn{ font-family:'IBM Plex Mono', monospace; font-size:12px; color: var(--chalkboard); cursor:pointer; text-decoration: underline; }
+  .locked{ text-align:center; padding: 44px 20px; color: var(--muted); }
+  .locked h2{ font-family:'Quicksand', sans-serif; color: var(--ink); }
+
+  .skeleton{
+    border-radius: 24px;
+    background: linear-gradient(90deg, #E4EDED 25%, #F5F9F9 50%, #E4EDED 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+    height: 180px;
+    margin-bottom: 16px;
+  }
+  @keyframes shimmer{ 0%{ background-position: 200% 0; } 100%{ background-position: -200% 0; } }
+
+  .chip{
+    display:inline-block;
+    background: var(--green-soft);
+    color: #14532D;
+    font-size: 12.5px;
+    font-weight: 500;
+    border-radius: 999px;
+    padding: 5px 11px;
+    margin: 0 6px 6px 0;
+  }
+  .fineprint{ font-size: 12px; color: var(--muted); line-height: 1.5; margin-top: 18px; }
 
   @media (prefers-reduced-motion: reduce){
     .stamp{ animation: none; }
+    .skeleton{ animation: none; }
   }
 </style>
 </head>
@@ -296,34 +384,33 @@
 <script>
 (function(){
   const app = document.getElementById('app');
-  const CONFIG_KEY = 'school-config';
-  const RECORDS_KEY = 'timeclock-records';
   const LAST_TEACHER_KEY = 'cmca-last-teacher';
   const GEO_GRANTED_KEY = 'cmca-geo-granted';
-  const ADMIN_PASS_DEFAULT = 'setup2026'; // first-time admin passcode; change it from the Admin tab after logging in
+  const ADMIN_TOKEN_KEY = 'cmca-admin-token';
 
-  // Pre-seeded location — used only if no config has been saved yet.
-  // Admin can still change name/radius/coordinates any time from the Admin tab.
   const DEFAULT_CONFIG = {
     name: 'Chabad Academy',
     lat: 33.8961267,
     lng: -84.3820022,
     radius: 300,
-    adminPass: ADMIN_PASS_DEFAULT,
     teachers: []
   };
 
   let state = {
     tab: 'clock',
-    config: null,         // {name, lat, lng, radius, adminPass, teachers: []}
-    records: [],          // array of {id, teacherName, type, ts, distance, withinRange}
+    loading: true,
+    loadError: '',
+    config: null,         // {name, lat, lng, radius, teachers: []} — never includes the passcode
+    records: [],          // array of {id, teacherName, type, ts, distance, offSite, timeAdjusted, missed, manual}
     teacherName: '',
     checking: false,
-    geoStatus: null,      // {ok, distance, message}
+    geoStatus: null,      // {ok, message}
     geoPermission: 'unknown', // 'granted' | 'denied' | 'prompt' | 'unsupported' | 'unknown'
     hasGrantedBefore: false,
     lastStamp: null,      // {type, ts}
+    lastPunch: null,      // {id, type, ts, undoUntil} — undoable for 60 seconds
     adminUnlocked: false,
+    adminToken: '',
     adminPassInput: '',
     adminError: '',
     settingLocation: false,
@@ -331,9 +418,21 @@
     newTeacherInput: '',
     manualTimeEnabled: false,
     manualTimeValue: '',
+    manualOutEnabled: false,
+    manualOutValue: '',
+    autoClosedNote: '', // set when an open shift was auto-closed at 3:45 PM
     adminDateFilter: null,
-    showAllDates: false
+    showAllDates: false,
+    adminTeacherFilter: '',
+    adminMsg: '',
+    manualPunchTeacher: '',
+    manualPunchType: 'in',
+    manualPunchDate: '',
+    manualPunchTime: '',
+    elapsedTimer: null
   };
+
+  /* ---------- small utilities ---------- */
 
   function toRad(v){ return v * Math.PI / 180; }
   function haversine(lat1, lng1, lat2, lng2){
@@ -343,26 +442,84 @@
     const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLng/2)**2;
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
   }
+  function esc(s){ return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function dayKey(ts){ return new Date(ts).toLocaleDateString('en-CA'); } // local YYYY-MM-DD
+  function todayStr(){ return new Date().toLocaleDateString('en-CA'); }
+  function fmtTime(ts){
+    return new Date(ts).toLocaleString(undefined, { weekday:'short', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+  }
+  function fmtClock(ts){
+    return new Date(ts).toLocaleString(undefined, { hour:'2-digit', minute:'2-digit' });
+  }
+  function fmtHours(h){ return h.toFixed(2) + ' hrs'; }
+  function fmtElapsed(ms){
+    const totalMin = Math.max(0, Math.floor(ms / 60000));
+    const h = Math.floor(totalMin / 60);
+    const m = totalMin % 60;
+    return h > 0 ? h + 'h ' + String(m).padStart(2,'0') + 'm' : m + 'm';
+  }
+  function nowTimeStr(){
+    const d = new Date();
+    return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+  }
+  function dateFromDayAndTime(day, hhmm){
+    const parts = (hhmm || '').split(':');
+    const d = new Date(day + 'T12:00:00');
+    d.setHours(parseInt(parts[0],10) || 0, parseInt(parts[1],10) || 0, 0, 0);
+    return d;
+  }
+
+  /* ---------- API ---------- */
+
+  async function apiGet(path){
+    const res = await fetch(path, { cache: 'no-store' });
+    if(!res.ok) throw new Error('Could not load data (server said ' + res.status + ').');
+    return res.json();
+  }
+  function authHeaders(){
+    const h = { 'Content-Type': 'application/json' };
+    if(state.adminToken) h['X-Admin-Token'] = state.adminToken;
+    return h;
+  }
+  async function apiPost(path, body){
+    const res = await fetch(path, { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) });
+    let data = null;
+    try{ data = await res.json(); }catch(e){ /* non-JSON error body */ }
+    if(!res.ok) throw new Error((data && data.error) || ('Request failed (server said ' + res.status + ').'));
+    return data;
+  }
 
   async function loadAll(){
+    state.loading = true;
+    render();
     try{
-      const cfgRes = await fetch('/api/config', { cache: 'no-store' });
-      const cfgData = await cfgRes.json();
-      state.config = cfgData || DEFAULT_CONFIG;
-      if(state.config && !Array.isArray(state.config.teachers)) state.config.teachers = [];
-    }catch(e){ state.config = DEFAULT_CONFIG; }
-    try{
-      const recRes = await fetch('/api/records', { cache: 'no-store' });
-      state.records = await recRes.json();
-    }catch(e){ state.records = []; }
+      const [cfg, recs] = await Promise.all([apiGet('/api/config'), apiGet('/api/records')]);
+      state.config = cfg || DEFAULT_CONFIG;
+      if(!Array.isArray(state.config.teachers)) state.config.teachers = [];
+      state.records = Array.isArray(recs) ? recs : [];
+      state.loadError = '';
+      // Close any shifts still open past 8 PM at 3:45 PM, before first paint.
+      await autoCloseMissedShifts();
+    }catch(e){
+      state.config = DEFAULT_CONFIG;
+      state.records = [];
+      state.loadError = e.message || 'Could not load data. Check your connection and refresh.';
+    }
     try{
       const remembered = localStorage.getItem(LAST_TEACHER_KEY);
       if(remembered) state.teacherName = remembered;
-    }catch(e){ /* localStorage unavailable (e.g. private browsing) — no remembered teacher */ }
-    try{
       if(localStorage.getItem(GEO_GRANTED_KEY) === 'true') state.hasGrantedBefore = true;
-    }catch(e){ /* ignore */ }
+      const token = sessionStorage.getItem(ADMIN_TOKEN_KEY);
+      if(token){ state.adminToken = token; state.adminUnlocked = true; }
+    }catch(e){ /* storage unavailable — carry on without it */ }
+    state.loading = false;
     await checkGeoPermission();
+    render();
+    startElapsedTimer();
+  }
+
+  async function refreshRecords(){
+    try{ state.records = await apiGet('/api/records'); }catch(e){ /* keep what we have */ }
     render();
   }
 
@@ -370,27 +527,43 @@
     try{ localStorage.setItem(LAST_TEACHER_KEY, name); }catch(e){ /* ignore */ }
   }
 
+  /* ---------- geolocation ---------- */
+
   async function checkGeoPermission(){
     if(!navigator.permissions || !navigator.permissions.query){
-      state.geoPermission = 'unsupported'; // browser will still prompt directly when we call getCurrentPosition
+      state.geoPermission = 'unsupported';
       return;
     }
     try{
       const status = await navigator.permissions.query({ name: 'geolocation' });
-      state.geoPermission = status.state; // 'granted' | 'denied' | 'prompt'
+      state.geoPermission = status.state;
       if(status.state === 'granted') markGrantedBefore();
       status.onchange = () => { state.geoPermission = status.state; render(); };
     }catch(e){
       state.geoPermission = 'unsupported';
     }
   }
-
   function markGrantedBefore(){
     if(state.hasGrantedBefore) return;
     state.hasGrantedBefore = true;
     try{ localStorage.setItem(GEO_GRANTED_KEY, 'true'); }catch(e){ /* ignore */ }
   }
-
+  function geoErrorMessage(e){
+    if(e.code === 1) return 'Location access is blocked for this site. Tap the lock or site-info icon next to the address bar, allow Location, then refresh the page.';
+    if(e.code === 2) return 'Your device could not determine your location. Location Services may be turned off — enable it in your phone or computer\'s system settings, then try again.';
+    if(e.code === 3) return 'Location request timed out. Try again.';
+    return e.message || 'Could not get your location.';
+  }
+  function getLocation(){
+    return new Promise((resolve, reject)=>{
+      if(!navigator.geolocation){ reject(new Error('Geolocation is not supported on this device.')); return; }
+      navigator.geolocation.getCurrentPosition(
+        pos => resolve(pos.coords),
+        err => reject(err),
+        { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
+      );
+    });
+  }
   async function handleEnableLocation(){
     state.geoStatus = { ok:null, message: 'Requesting location access…' };
     render();
@@ -406,183 +579,145 @@
     render();
   }
 
-  function geoErrorMessage(e){
-    if(e.code === 1) return 'Location access is blocked for this site. Tap the lock or site-info icon next to the address bar, allow Location, then refresh the page.';
-    if(e.code === 2) return 'Your device could not determine your location — Location Services may be turned off. Enable it in your phone or computer\'s system settings, then try again.';
-    if(e.code === 3) return 'Location request timed out. Try again.';
-    return e.message || 'Could not get your location.';
-  }
+  /* ---------- records: day-aware state ---------- */
 
-  async function saveConfig(cfg){
-    state.config = cfg;
-    const res = await fetch('/api/config', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(cfg)
-    });
-    if(!res.ok) throw new Error('Saving settings failed (server said ' + res.status + '). Nothing was saved — try again.');
+  function recordsFor(name){
+    return state.records.filter(r => r.teacherName.toLowerCase() === name.toLowerCase());
   }
-
-  async function saveRecords(){
-    const res = await fetch('/api/records', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(state.records)
-    });
-    if(!res.ok) throw new Error('Saving your check-in failed (server said ' + res.status + '). Please try again — nothing was recorded.');
-  }
-
-  function fmtTime(ts){
-    const d = new Date(ts);
-    return d.toLocaleString(undefined, { weekday:'short', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
-  }
-  function fmtHours(h){ return h.toFixed(2) + ' hrs'; }
-
   function lastRecordFor(name){
-    const list = state.records.filter(r => r.teacherName.toLowerCase() === name.toLowerCase());
+    const list = recordsFor(name);
     if(!list.length) return null;
     return list.reduce((a,b)=> new Date(a.ts) > new Date(b.ts) ? a : b);
   }
-
+  // Checked in means an "in" punch from TODAY with no later punch.
+  // An "in" from a previous day never counts — that is the missed clock-out
+  // bug: it used to make the next morning's button say "Clock Out".
   function isCheckedIn(name){
     const last = lastRecordFor(name);
-    return !!(last && last.type === 'in');
+    return !!(last && last.type === 'in' && dayKey(last.ts) === todayStr());
+  }
+  function todaysRecords(name){
+    return recordsFor(name)
+      .filter(r => dayKey(r.ts) === todayStr())
+      .sort((a,b)=> new Date(a.ts) - new Date(b.ts));
+  }
+  function openShiftFor(name){
+    const last = lastRecordFor(name);
+    return (last && last.type === 'in') ? last : null;
   }
 
+  // Auto clock-out rule (Noson's call): if someone is still clocked in at
+  // 8:00 PM, their shift is closed retroactively at 3:45 PM that day.
+  // The auto punch id is derived from the clock-in id, so even if several
+  // phones run this at once they all write the exact same record.
+  // Shifts that started after 3:45 PM are left alone — closing them at 3:45
+  // would put the clock-out before the clock-in.
+  const AUTO_OUT_HOUR = 15, AUTO_OUT_MIN = 45, AUTO_CLOSE_HOUR = 20;
+  async function autoCloseMissedShifts(){
+    const now = new Date();
+    const names = [...new Set(state.records.map(r => r.teacherName))];
+    let closed = [];
+    for(const name of names){
+      const open = openShiftFor(name);
+      if(!open) continue;
+      const inDay = dayKey(open.ts);
+      const inTime = new Date(open.ts);
+      const deadline = dateFromDayAndTime(inDay, String(AUTO_CLOSE_HOUR).padStart(2,'0') + ':00');
+      if(now.getTime() < deadline.getTime()) continue; // not 8 PM yet that day
+      const outAt = dateFromDayAndTime(inDay, String(AUTO_OUT_HOUR).padStart(2,'0') + ':' + String(AUTO_OUT_MIN).padStart(2,'0'));
+      if(inTime.getTime() >= outAt.getTime()) continue; // clocked in after 3:45 PM — leave it for admin
+      const rec = {
+        id: 'auto_' + open.id,
+        teacherName: name,
+        type: 'out',
+        ts: outAt.toISOString(),
+        distance: null,
+        offSite: false,
+        timeAdjusted: true,
+        autoClockOut: true
+      };
+      if(state.records.some(r => r.id === rec.id)) continue;
+      try{
+        await apiPost('/api/records', { record: rec });
+        state.records.push(rec);
+        closed.push({ name, day: inDay });
+      }catch(e){ /* a failed auto-close just retries next load */ }
+    }
+    if(closed.length){
+      state.autoClosedNote = closed.map(c => c.name + ' — ' + c.day).join(', ');
+    }
+    return closed;
+  }
+
+  // Totals pair clock-ins and clock-outs on the SAME day only. An open shift
+  // never contributes hours, and a "missed" close contributes zero.
   function computeTotals(records){
-    const list = records || state.records;
     const byName = {};
-    const sorted = [...list].sort((a,b)=> new Date(a.ts) - new Date(b.ts));
+    const missed = {};
+    const sorted = [...(records || state.records)].sort((a,b)=> new Date(a.ts) - new Date(b.ts));
     const openIn = {};
     for(const r of sorted){
+      const day = dayKey(r.ts);
       if(r.type === 'in'){
-        openIn[r.teacherName] = r.ts;
+        openIn[r.teacherName] = { ts: r.ts, day };
       } else if(r.type === 'out' && openIn[r.teacherName]){
-        const hrs = (new Date(r.ts) - new Date(openIn[r.teacherName])) / 3600000;
-        byName[r.teacherName] = (byName[r.teacherName]||0) + hrs;
+        const open = openIn[r.teacherName];
+        if(open.day === day){
+          const hrs = (new Date(r.ts) - new Date(open.ts)) / 3600000;
+          if(hrs >= 0) byName[r.teacherName] = (byName[r.teacherName] || 0) + hrs;
+        }
+        delete openIn[r.teacherName];
+      } else if(r.type === 'missed' && openIn[r.teacherName]){
+        missed[r.teacherName] = (missed[r.teacherName] || 0) + 1;
         delete openIn[r.teacherName];
       }
     }
-    return byName;
+    return { byName, missed };
   }
 
-  function dateStrOf(ts){
-    return new Date(ts).toLocaleDateString('en-CA'); // YYYY-MM-DD in local time
-  }
-
-  function todayStr(){
-    return new Date().toLocaleDateString('en-CA');
-  }
-
-  function nowTimeStr(){
-    const d = new Date();
-    return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
-  }
-
-  function getFilteredRecords(){
-    if(state.showAllDates) return state.records;
-    return state.records.filter(r => dateStrOf(r.ts) === state.adminDateFilter);
-  }
-
-  function getLocation(){
-    return new Promise((resolve, reject)=>{
-      if(!navigator.geolocation){ reject(new Error('Geolocation is not supported on this device.')); return; }
-      navigator.geolocation.getCurrentPosition(
-        pos => resolve(pos.coords),
-        err => reject(err),
-        { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
-      );
-    });
-  }
-
-  async function handleUseMyLocation(){
-    state.locSaveMsg = 'Getting your current location…';
-    render();
-    try{
-      const coords = await getLocation();
-      document.getElementById('cfg-lat').value = coords.latitude.toFixed(6);
-      document.getElementById('cfg-lng').value = coords.longitude.toFixed(6);
-      state.locSaveMsg = 'Location captured. Review and save below.';
-    }catch(e){
-      state.locSaveMsg = 'Could not get location: ' + (e.message || 'permission denied.');
+  // People still clocked in from a previous day (open shifts admin should see).
+  function openShifts(){
+    const names = [...new Set(state.records.map(r => r.teacherName))];
+    const out = [];
+    for(const name of names){
+      const open = openShiftFor(name);
+      if(open && dayKey(open.ts) !== todayStr()) out.push({ name, inTs: open.ts });
     }
-    render();
+    return out.sort((a,b)=> new Date(a.inTs) - new Date(b.inTs));
   }
 
-  async function handleSaveConfig(ev){
-    ev.preventDefault();
-    const name = document.getElementById('cfg-name').value.trim() || 'School';
-    const lat = parseFloat(document.getElementById('cfg-lat').value);
-    const lng = parseFloat(document.getElementById('cfg-lng').value);
-    const radius = parseFloat(document.getElementById('cfg-radius').value) || 300;
-    if(isNaN(lat) || isNaN(lng)){
-      state.locSaveMsg = 'Enter valid coordinates, or use "Use my current location."';
-      render();
-      return;
-    }
-    const adminPass = (state.config && state.config.adminPass) || ADMIN_PASS_DEFAULT;
-    const teachers = (state.config && state.config.teachers) || [];
-    try{
-      await saveConfig({ name, lat, lng, radius, adminPass, teachers });
-      state.locSaveMsg = 'Saved. Teachers can now check in within ' + radius + 'm of ' + name + '.';
-    }catch(e){
-      state.locSaveMsg = e.message || 'Save failed — please try again.';
-    }
-    render();
+  function currentlyIn(){
+    const names = [...new Set(state.records.map(r => r.teacherName))];
+    return names.filter(n => isCheckedIn(n)).sort((a,b)=> a.localeCompare(b));
   }
 
-  async function handleChangePasscode(ev){
-    ev.preventDefault();
-    const val = document.getElementById('new-pass').value.trim();
-    if(val.length < 4){ state.locSaveMsg = 'Passcode must be at least 4 characters.'; render(); return; }
-    const cfg = { ...state.config, adminPass: val };
-    try{
-      await saveConfig(cfg);
-      state.locSaveMsg = 'Admin passcode updated.';
-    }catch(e){
-      state.locSaveMsg = e.message || 'Save failed — please try again.';
-    }
-    render();
+  /* ---------- saving ---------- */
+
+  async function saveConfig(cfg){
+    const res = await apiPost('/api/config', cfg);
+    state.config = res.config || cfg;
   }
 
-  async function handleAddTeacher(ev){
-    ev.preventDefault();
-    const input = document.getElementById('new-teacher-input');
-    const rawNames = input.value.split(/[\n,]/).map(s => s.trim()).filter(Boolean);
-    if(!rawNames.length) return;
-
-    const teachers = Array.isArray(state.config.teachers) ? [...state.config.teachers] : [];
-    const existingLower = teachers.map(t => t.toLowerCase());
-    let added = 0, skipped = 0;
-
-    for(const name of rawNames){
-      if(existingLower.includes(name.toLowerCase())){ skipped++; continue; }
-      teachers.push(name);
-      existingLower.push(name.toLowerCase());
-      added++;
-    }
-    teachers.sort((a,b)=> a.localeCompare(b));
-    try{
-      await saveConfig({ ...state.config, teachers });
-      state.newTeacherInput = '';
-      state.locSaveMsg = added
-        ? 'Added ' + added + ' teacher' + (added === 1 ? '' : 's') + (skipped ? ' (' + skipped + ' already on the list).' : '.')
-        : 'Everyone on that list is already added.';
-    }catch(e){
-      state.locSaveMsg = e.message || 'Save failed — please try again.';
-    }
-    render();
+  async function postRecord(record){
+    const res = await apiPost('/api/records', { record });
+    state.records.push(record);
+    return res;
   }
 
-  async function handleRemoveTeacher(name){
-    const teachers = (state.config.teachers || []).filter(t => t !== name);
-    try{
-      await saveConfig({ ...state.config, teachers });
-    }catch(e){
-      state.locSaveMsg = e.message || 'Save failed — please try again.';
-    }
-    render();
+  function startElapsedTimer(){
+    if(state.elapsedTimer) return;
+    state.elapsedTimer = setInterval(()=>{
+      const el = document.getElementById('elapsed-now');
+      if(el && state.teacherName.trim()){
+        const open = openShiftFor(state.teacherName.trim());
+        if(open && dayKey(open.ts) === todayStr()){
+          el.textContent = fmtElapsed(Date.now() - new Date(open.ts).getTime());
+        }
+      }
+    }, 30000);
   }
+
+  /* ---------- clock in / out ---------- */
 
   async function handleClockAction(){
     const name = state.teacherName.trim();
@@ -591,17 +726,26 @@
 
     const nextType = isCheckedIn(name) ? 'out' : 'in';
 
-    // Optional manual arrival time (check-in only) — still requires being on-site right now to submit.
+    // Optional adjusted time — clock-in ("I arrived at…") or clock-out ("I left at…").
+    // Still requires being on-site right now to submit a clock-in.
     let tsDate = new Date();
     let timeAdjusted = false;
-    if(nextType === 'in' && state.manualTimeEnabled && state.manualTimeValue){
-      const parts = state.manualTimeValue.split(':');
-      const candidate = new Date();
-      candidate.setHours(parseInt(parts[0],10) || 0, parseInt(parts[1],10) || 0, 0, 0);
+    const manualOn = nextType === 'in' ? state.manualTimeEnabled : state.manualOutEnabled;
+    const manualVal = nextType === 'in' ? state.manualTimeValue : state.manualOutValue;
+    if(manualOn && manualVal){
+      const candidate = dateFromDayAndTime(todayStr(), manualVal);
       if(candidate.getTime() > Date.now() + 60000){
-        state.geoStatus = { ok:false, message: 'Arrival time can\'t be in the future.' };
+        state.geoStatus = { ok:false, message: 'That time can\'t be in the future.' };
         render();
         return;
+      }
+      if(nextType === 'out'){
+        const open = openShiftFor(name);
+        if(open && candidate.getTime() < new Date(open.ts).getTime()){
+          state.geoStatus = { ok:false, message: 'Clock-out time can\'t be before today\'s clock-in.' };
+          render();
+          return;
+        }
       }
       tsDate = candidate;
       timeAdjusted = true;
@@ -611,8 +755,6 @@
     state.geoStatus = { ok:null, message: 'Checking your location…' };
     render();
 
-    // Step 1: try to get location. A failure here just means we don't know where they are —
-    // it's only a hard blocker for check-in; clock-out can still proceed without it.
     let coords = null;
     let locationError = null;
     try{
@@ -630,7 +772,6 @@
       dist = haversine(coords.latitude, coords.longitude, state.config.lat, state.config.lng);
       within = dist <= state.config.radius;
     }
-
     state.checking = false;
 
     if(nextType === 'in'){
@@ -660,13 +801,11 @@
       locationUnavailable: locationUnavailable
     };
 
-    // Step 2: save. If this fails, don't pretend it worked — roll back and say so.
-    state.records.push(record);
     try{
-      await saveRecords();
+      await postRecord(record);
     }catch(saveErr){
       state.records = state.records.filter(r => r.id !== record.id);
-      state.geoStatus = { ok:false, message: saveErr.message || 'Could not save your check-in. Please try again.' };
+      state.geoStatus = { ok:false, message: saveErr.message || 'Could not save. Please try again — nothing was recorded.' };
       render();
       return;
     }
@@ -678,48 +817,195 @@
         ? { ok:true, message: 'Clocked out — location wasn\'t available, so this was noted.' }
         : { ok:true, message: 'You\'re in range at ' + state.config.name + '.' };
     state.lastStamp = { type: nextType, ts: record.ts };
+    state.lastPunch = { id: record.id, type: nextType, ts: record.ts, undoUntil: Date.now() + 60000 };
     state.manualTimeEnabled = false;
     state.manualTimeValue = '';
+    state.manualOutEnabled = false;
+    state.manualOutValue = '';
     render();
   }
 
-  function handleAdminLogin(ev){
-    ev.preventDefault();
-    const pass = document.getElementById('admin-pass').value;
-    const expected = (state.config && state.config.adminPass) || ADMIN_PASS_DEFAULT;
-    if(pass === expected){
-      state.adminUnlocked = true;
-      state.adminError = '';
-      render();
-      refreshData();
-      return;
-    } else {
-      state.adminError = 'Incorrect passcode.';
+  async function handleUndoPunch(){
+    if(!state.lastPunch) return;
+    if(Date.now() > state.lastPunch.undoUntil){ state.lastPunch = null; render(); return; }
+    const id = state.lastPunch.id;
+    try{
+      await apiPost('/api/records', { action: 'delete', id });
+      state.records = state.records.filter(r => r.id !== id);
+      state.geoStatus = { ok:true, message: 'That punch was undone.' };
+      state.lastStamp = null;
+      state.lastPunch = null;
+    }catch(e){
+      state.geoStatus = { ok:false, message: e.message || 'Could not undo that punch.' };
     }
     render();
   }
 
-  async function refreshData(){
+  /* ---------- admin ---------- */
+
+  async function handleAdminLogin(ev){
+    ev.preventDefault();
+    const pass = document.getElementById('admin-pass').value;
     try{
-      const [cfgRes, recRes] = await Promise.all([
-        fetch('/api/config', { cache: 'no-store' }),
-        fetch('/api/records', { cache: 'no-store' })
-      ]);
-      const cfgData = await cfgRes.json();
-      if(cfgData){
-        if(!Array.isArray(cfgData.teachers)) cfgData.teachers = [];
-        state.config = cfgData;
-      }
-      state.records = await recRes.json();
+      const res = await apiPost('/api/admin-login', { pass });
+      state.adminToken = res.token;
+      state.adminUnlocked = true;
+      state.adminError = '';
+      try{ sessionStorage.setItem(ADMIN_TOKEN_KEY, res.token); }catch(e){ /* ignore */ }
       render();
-    }catch(e){ /* keep whatever we already have if refresh fails */ }
+      refreshRecords();
+    }catch(e){
+      state.adminError = e.message || 'Incorrect passcode.';
+      render();
+    }
+  }
+
+  function handleAdminLogout(){
+    state.adminToken = '';
+    state.adminUnlocked = false;
+    state.adminPassInput = '';
+    try{ sessionStorage.removeItem(ADMIN_TOKEN_KEY); }catch(e){ /* ignore */ }
+    render();
+  }
+
+  async function handleUseMyLocation(){
+    state.locSaveMsg = 'Getting your current location…';
+    render();
+    try{
+      const coords = await getLocation();
+      document.getElementById('cfg-lat').value = coords.latitude.toFixed(6);
+      document.getElementById('cfg-lng').value = coords.longitude.toFixed(6);
+      state.locSaveMsg = 'Location captured. Review and save below.';
+    }catch(e){
+      state.locSaveMsg = 'Could not get location: ' + (e.message || 'permission denied.');
+    }
+    render();
+  }
+
+  async function handleSaveConfig(ev){
+    ev.preventDefault();
+    const name = document.getElementById('cfg-name').value.trim() || 'School';
+    const lat = parseFloat(document.getElementById('cfg-lat').value);
+    const lng = parseFloat(document.getElementById('cfg-lng').value);
+    const radius = parseFloat(document.getElementById('cfg-radius').value) || 300;
+    if(isNaN(lat) || isNaN(lng)){
+      state.locSaveMsg = 'Enter valid coordinates, or use "Use my current location."';
+      render();
+      return;
+    }
+    try{
+      await saveConfig({ name, lat, lng, radius, teachers: (state.config && state.config.teachers) || [] });
+      state.locSaveMsg = 'Saved. Teachers can now check in within ' + radius + 'm of ' + name + '.';
+    }catch(e){
+      state.locSaveMsg = e.message || 'Save failed — please try again.';
+    }
+    render();
+  }
+
+  async function handleChangePasscode(ev){
+    ev.preventDefault();
+    const val = document.getElementById('new-pass').value.trim();
+    if(val.length < 4){ state.locSaveMsg = 'Passcode must be at least 4 characters.'; render(); return; }
+    try{
+      await apiPost('/api/config', { action: 'set-pass', newPass: val });
+      state.locSaveMsg = 'Admin passcode updated.';
+    }catch(e){
+      state.locSaveMsg = e.message || 'Save failed — please try again.';
+    }
+    render();
+  }
+
+  async function handleAddTeacher(ev){
+    ev.preventDefault();
+    const input = document.getElementById('new-teacher-input');
+    const rawNames = input.value.split(/[\n,]/).map(s => s.trim()).filter(Boolean);
+    if(!rawNames.length) return;
+    const teachers = Array.isArray(state.config.teachers) ? [...state.config.teachers] : [];
+    const existingLower = teachers.map(t => t.toLowerCase());
+    let added = 0, skipped = 0;
+    for(const name of rawNames){
+      if(existingLower.includes(name.toLowerCase())){ skipped++; continue; }
+      teachers.push(name);
+      existingLower.push(name.toLowerCase());
+      added++;
+    }
+    teachers.sort((a,b)=> a.localeCompare(b));
+    try{
+      await saveConfig({ ...state.config, teachers });
+      state.newTeacherInput = '';
+      state.locSaveMsg = added
+        ? 'Added ' + added + ' teacher' + (added === 1 ? '' : 's') + (skipped ? ' (' + skipped + ' already on the list).' : '.')
+        : 'Everyone on that list is already added.';
+    }catch(e){
+      state.locSaveMsg = e.message || 'Save failed — please try again.';
+    }
+    render();
+  }
+
+  async function handleRemoveTeacher(name){
+    const teachers = (state.config.teachers || []).filter(t => t !== name);
+    try{
+      await saveConfig({ ...state.config, teachers });
+    }catch(e){
+      state.locSaveMsg = e.message || 'Save failed — please try again.';
+    }
+    render();
+  }
+
+  async function handleDeleteRecord(id){
+    try{
+      await apiPost('/api/records', { action: 'delete', id });
+      state.records = state.records.filter(r => r.id !== id);
+      state.adminMsg = 'Punch deleted.';
+    }catch(e){
+      state.adminMsg = e.message || 'Could not delete that punch.';
+    }
+    render();
+  }
+
+  async function handleManualPunch(ev){
+    ev.preventDefault();
+    const name = state.manualPunchTeacher;
+    const type = state.manualPunchType;
+    const day = state.manualPunchDate || todayStr();
+    const time = state.manualPunchTime || nowTimeStr();
+    if(!name){ state.adminMsg = 'Pick a teacher first.'; render(); return; }
+    const ts = dateFromDayAndTime(day, time);
+    if(ts.getTime() > Date.now() + 60000){ state.adminMsg = 'That time can\'t be in the future.'; render(); return; }
+    const record = {
+      id: 'r_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+      teacherName: name,
+      type: type,
+      ts: ts.toISOString(),
+      distance: null,
+      offSite: false,
+      timeAdjusted: true,
+      manual: true
+    };
+    try{
+      await postRecord(record);
+      state.adminMsg = 'Manual ' + (type === 'in' ? 'clock-in' : 'clock-out') + ' added for ' + name + '.';
+      state.manualPunchTime = '';
+    }catch(e){
+      state.adminMsg = e.message || 'Could not add that punch.';
+    }
+    render();
+  }
+
+  function getFilteredRecords(){
+    let list = state.showAllDates ? [...state.records] : state.records.filter(r => dayKey(r.ts) === state.adminDateFilter);
+    if(state.adminTeacherFilter.trim()){
+      const q = state.adminTeacherFilter.trim().toLowerCase();
+      list = list.filter(r => r.teacherName.toLowerCase().includes(q));
+    }
+    return list;
   }
 
   function exportCSV(){
-    const rows = [['Teacher','Type','Timestamp','Distance (m)','Adjusted Time','Off-Site / No Location']];
+    const rows = [['Teacher','Type','Timestamp','Distance (m)','Adjusted Time','Auto Clock-Out','Off-Site / No Location']];
     [...getFilteredRecords()].sort((a,b)=> new Date(a.ts) - new Date(b.ts)).forEach(r=>{
       const flag = r.locationUnavailable ? 'No location' : (r.offSite ? 'Off-site' : '');
-      rows.push([r.teacherName, r.type, r.ts, r.distance ?? '', r.timeAdjusted ? 'Yes' : '', flag]);
+      rows.push([r.teacherName, r.type, r.ts, r.distance ?? '', r.timeAdjusted ? 'Yes' : '', r.autoClockOut ? 'Yes' : '', flag]);
     });
     const csv = rows.map(r => r.map(v => '"' + String(v).replace(/"/g,'""') + '"').join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -733,12 +1019,26 @@
   function setTab(t){
     state.tab = t;
     state.locSaveMsg = '';
+    state.adminMsg = '';
     render();
     if(t === 'clock'){ checkGeoPermission().then(render); }
-    if(t === 'admin' && state.adminUnlocked){ refreshData(); }
+    if(t === 'admin' && state.adminUnlocked){ refreshRecords(); }
   }
 
+  /* ---------- rendering ---------- */
+
   function renderClockTab(){
+    if(state.loading){
+      return `<div class="skeleton"></div><div class="skeleton" style="height:120px;"></div>`;
+    }
+    if(state.loadError){
+      return `
+        <div class="card locked">
+          <h2>Couldn\'t load the time clock</h2>
+          <p>${esc(state.loadError)}</p>
+          <button class="btn btn-primary" onclick="location.reload()">Refresh</button>
+        </div>`;
+    }
     if(!state.config){
       return `
         <div class="card locked">
@@ -747,30 +1047,51 @@
         </div>`;
     }
 
+    const name = state.teacherName.trim();
+    const checkedIn = name ? isCheckedIn(name) : false;
+    const last = name ? lastRecordFor(name) : null;
+    const open = name ? openShiftFor(name) : null;
+    const todayList = name ? todaysRecords(name) : [];
+    // Show the auto clock-out note when their most recent action was an automatic close.
+    const autoNote = !!(name && last && last.autoClockOut);
+
     let permissionCard = '';
     if(state.geoPermission === 'denied'){
       permissionCard = `
         <div class="card">
           <h2>Location access is off</h2>
-          <p class="hint">This site can't check you in without it. Allow location for this site in your browser settings, then refresh the page.</p>
+          <p class="hint">Clocking in needs your location to confirm you\'re at ${esc(state.config.name)}. Clocking out still works without it.</p>
           <button class="btn btn-outline" id="enable-location-btn">Try again</button>
         </div>`;
     } else if(!state.hasGrantedBefore && (state.geoPermission === 'prompt' || state.geoPermission === 'unsupported' || state.geoPermission === 'unknown')){
       permissionCard = `
         <div class="card">
           <h2>Turn on location to check in</h2>
-          <p class="hint">We only use it for a moment, to confirm you're at ${state.config.name}. You'll only need to do this once on this device.</p>
+          <p class="hint">We only use it for a moment, to confirm you\'re at ${esc(state.config.name)}. You\'ll only need to do this once on this device.</p>
           <button class="btn btn-brass" id="enable-location-btn">Allow location access</button>
         </div>`;
     }
 
-    const checkedIn = state.teacherName.trim() ? isCheckedIn(state.teacherName.trim()) : false;
-    const last = state.teacherName.trim() ? lastRecordFor(state.teacherName.trim()) : null;
+    let statusPill = '';
+    if(name && checkedIn && open){
+      statusPill = `
+        <div class="status-pill in">
+          <span class="dot"></span>
+          <span>Clocked in since ${fmtClock(open.ts)}</span>
+          <span class="elapsed" id="elapsed-now">${fmtElapsed(Date.now() - new Date(open.ts).getTime())}</span>
+        </div>`;
+    } else if(name && last){
+      statusPill = `
+        <div class="status-pill out">
+          <span class="dot"></span>
+          <span>Clocked out ${fmtTime(last.ts)}${last.autoClockOut ? ' — automatic clock-out at 3:45 PM' : ''}</span>
+        </div>`;
+    }
 
     let statusHtml = '';
     if(state.geoStatus){
       const cls = state.geoStatus.ok === true ? 'ok' : state.geoStatus.ok === false ? 'bad' : 'wait';
-      statusHtml = `<div class="status-line"><span class="dot ${cls}"></span>${state.geoStatus.message}</div>`;
+      statusHtml = `<div class="status-line ${cls}">${esc(state.geoStatus.message)}</div>`;
     }
 
     let stampHtml = '';
@@ -778,13 +1099,18 @@
       stampHtml = `<div class="stamp-wrap"><div class="stamp ${state.lastStamp.type}">${state.lastStamp.type === 'in' ? 'Clocked In' : 'Clocked Out'}<small>${fmtTime(state.lastStamp.ts)}</small></div></div>`;
     }
 
+    let undoHtml = '';
+    if(state.lastPunch && Date.now() < state.lastPunch.undoUntil){
+      undoHtml = `<button class="btn btn-outline btn-block" id="undo-btn" style="margin-top:10px;">Undo that punch</button>`;
+    }
+
     const teacherList = Array.isArray(state.config.teachers) ? state.config.teachers : [];
     const nameField = teacherList.length
       ? `<select id="teacher-name">
           <option value="">Select your name…</option>
-          ${teacherList.map(t => `<option value="${t.replace(/"/g,'&quot;')}" ${state.teacherName === t ? 'selected' : ''}>${t}</option>`).join('')}
+          ${teacherList.map(t => `<option value="${esc(t)}" ${state.teacherName === t ? 'selected' : ''}>${esc(t)}</option>`).join('')}
         </select>`
-      : `<input type="text" id="teacher-name" placeholder="e.g. Jordan Blake" value="${state.teacherName.replace(/"/g,'&quot;')}" />
+      : `<input type="text" id="teacher-name" placeholder="e.g. Jordan Blake" value="${esc(state.teacherName)}" />
          <p class="hint" style="margin-top:-10px;">Ask your admin to add teacher names in the Admin tab for a dropdown here.</p>`;
 
     const manualTimeHtml = !checkedIn ? `
@@ -792,16 +1118,34 @@
         <input type="checkbox" id="manual-time-toggle" ${state.manualTimeEnabled ? 'checked' : ''} />
         I arrived at a different time than right now
       </label>
-      ${state.manualTimeEnabled ? `<input type="time" id="manual-time-input" value="${state.manualTimeValue || nowTimeStr()}" />` : ''}
+      ${state.manualTimeEnabled ? `<input type="time" id="manual-time-input" value="${esc(state.manualTimeValue || nowTimeStr())}" />` : ''}
     ` : `
-      <p class="hint" style="margin-top:-10px;">Already off-site? You can still clock out — it'll just be noted.</p>
+      <label class="checkbox-row">
+        <input type="checkbox" id="manual-out-toggle" ${state.manualOutEnabled ? 'checked' : ''} />
+        I left at a different time than right now
+      </label>
+      ${state.manualOutEnabled ? `<input type="time" id="manual-out-input" value="${esc(state.manualOutValue || nowTimeStr())}" />` : ''}
+      <p class="hint">Already off-site? You can still clock out — it\'ll just be noted.</p>
     `;
+
+    const todayHtml = name && todayList.length ? `
+      <div class="card">
+        <h2>Today</h2>
+        <ul class="punch-list">
+          ${todayList.map(r => `<li><span>${r.type === 'in' ? 'Clocked in' : 'Clocked out'}${r.autoClockOut ? '<span class="flag">Auto 3:45 PM</span>' : ''}${r.timeAdjusted && !r.autoClockOut ? '<span class="flag">Adjusted</span>' : ''}${r.offSite ? '<span class="flag">Off-site</span>' : ''}</span><span class="when">${fmtClock(r.ts)}</span></li>`).join('')}
+        </ul>
+      </div>` : '';
+
+    const autoClosedHtml = autoNote ? `
+      <div class="banner">Heads up: you were automatically clocked out at 3:45 PM on a day you forgot to clock out. If that time is wrong, ask an admin to fix it.</div>` : '';
 
     return `
       ${permissionCard}
+      ${autoClosedHtml}
       <div class="card">
-        <h2>${state.config.name}</h2>
-        <p class="hint">${checkedIn ? 'Clocking out doesn\'t require being on-site.' : 'Check in only works within ' + state.config.radius + 'm of this location.'}</p>
+        <h2>${esc(state.config.name)}</h2>
+        <p class="hint">${checkedIn ? 'You\'re clocked in. Clocking out doesn\'t require being on-site.' : 'Check in only works within ' + state.config.radius + 'm of this location.'}</p>
+        ${statusPill}
         <label for="teacher-name">Your name</label>
         ${nameField}
         ${manualTimeHtml}
@@ -810,8 +1154,11 @@
         <button class="btn btn-primary btn-block" id="clock-btn" ${state.checking ? 'disabled' : ''}>
           ${state.checking ? 'Checking location…' : (checkedIn ? 'Clock Out' : 'Clock In')}
         </button>
-        ${last ? `<p class="hint" style="margin-top:14px;">Last action: ${last.type === 'in' ? 'Clocked in' : 'Clocked out'} ${fmtTime(last.ts)}</p>` : ''}
+        ${undoHtml}
+        ${last && !checkedIn ? `<p class="hint" style="margin-top:14px;">Last action: ${last.type === 'in' ? 'Clocked in' : 'Clocked out'} ${fmtTime(last.ts)}${last.autoClockOut ? ' (automatic, 3:45 PM)' : ''}</p>` : ''}
       </div>
+      ${todayHtml}
+      <p class="fineprint">Forgot to clock out? If you\'re still clocked in at 8:00 PM, the day closes automatically at 3:45 PM. Ask an admin if that time needs correcting.</p>
     `;
   }
 
@@ -819,12 +1166,14 @@
     if(!state.adminUnlocked){
       return `
         <div class="card">
-          <h2>Admin login</h2>
+          <h2>Admin sign in</h2>
           <p class="hint">Enter the admin passcode to manage location settings and view all hours.</p>
-          <label for="admin-pass">Passcode</label>
-          <input type="password" id="admin-pass" placeholder="${state.config ? '' : 'default: ' + ADMIN_PASS_DEFAULT}" />
-          ${state.adminError ? `<div class="banner">${state.adminError}</div>` : ''}
-          <button class="btn btn-primary" id="admin-login-btn">Unlock admin</button>
+          <form id="admin-login-form">
+            <label for="admin-pass">Passcode</label>
+            <input type="password" id="admin-pass" placeholder="Admin passcode" autocomplete="current-password" />
+            ${state.adminError ? `<div class="banner error">${esc(state.adminError)}</div>` : ''}
+            <button type="submit" class="btn btn-primary">Unlock admin</button>
+          </form>
         </div>
       `;
     }
@@ -832,64 +1181,118 @@
     if(!state.adminDateFilter) state.adminDateFilter = todayStr();
     const filteredRecords = getFilteredRecords();
     const totals = computeTotals(filteredRecords);
-    const totalRows = Object.keys(totals).length
-      ? Object.entries(totals).sort((a,b)=> b[1]-a[1]).map(([name,hrs]) => `<div class="totals-row"><span>${name}</span><span class="hrs">${fmtHours(hrs)}</span></div>`).join('')
+    const totalRows = Object.keys(totals.byName).length
+      ? Object.entries(totals.byName).sort((a,b)=> b[1]-a[1]).map(([name,hrs]) => `<div class="totals-row"><span>${esc(name)}</span><span class="hrs">${fmtHours(hrs)}</span></div>`).join('')
       : `<p class="empty">No completed shifts ${state.showAllDates ? 'yet' : 'on this day'}.</p>`;
+    const missedRows = Object.keys(totals.missed).length
+      ? `<p class="hint" style="margin-top:10px;">Missed clock-outs closed without a time: ${Object.entries(totals.missed).map(([n,c]) => esc(n) + ' (' + c + ')').join(', ')}</p>` : '';
 
     const sortedRecords = [...filteredRecords].sort((a,b)=> new Date(b.ts) - new Date(a.ts));
     const recordRows = sortedRecords.length
       ? sortedRecords.map(r => {
           const notes = [];
-          if(r.timeAdjusted) notes.push('Adjusted time');
+          if(r.autoClockOut) notes.push('Auto 3:45 PM');
+          if(r.timeAdjusted && !r.autoClockOut) notes.push('Adjusted');
+          if(r.manual) notes.push('Manual');
           if(r.locationUnavailable) notes.push('No location');
           else if(r.offSite) notes.push('Off-site');
           const noteHtml = notes.length ? notes.join(', ') : '—';
           const distHtml = (r.distance === null || r.distance === undefined) ? '—' : r.distance + 'm';
-          return `<tr><td class="name">${r.teacherName}</td><td>${r.type === 'in' ? 'Clock In' : 'Clock Out'}</td><td>${fmtTime(r.ts)}</td><td>${distHtml}</td><td>${noteHtml}</td></tr>`;
+          return `<tr><td class="name">${esc(r.teacherName)}</td><td>${r.type === 'in' ? 'Clock In' : r.type === 'out' ? 'Clock Out' : 'Missed'}</td><td>${fmtTime(r.ts)}</td><td>${distHtml}</td><td>${esc(noteHtml)}</td><td><button class="rowbtn" data-delete="${esc(r.id)}">Delete</button></td></tr>`;
         }).join('')
-      : `<tr><td colspan="5" class="empty">No check-ins ${state.showAllDates ? 'recorded yet' : 'on this day'}.</td></tr>`;
+      : `<tr><td colspan="6" class="empty">No check-ins ${state.showAllDates ? 'recorded yet' : 'on this day'}.</td></tr>`;
+
+    const openList = openShifts();
+    const openHtml = openList.length
+      ? `<div class="card">
+          <h2>Still clocked in from an earlier day</h2>
+          <p class="hint">These close automatically at 3:45 PM once 8:00 PM passes on their day. If someone is still working, fix the time below with a manual punch.</p>
+          ${openList.map(o => `<div class="totals-row"><span>${esc(o.name)}</span><span class="hrs">in since ${fmtTime(o.inTs)}</span></div>`).join('')}
+        </div>` : '';
+
+    const inNow = currentlyIn();
+    const inNowHtml = inNow.length
+      ? `<div class="card">
+          <h2>Clocked in right now</h2>
+          <p style="margin:0;">${inNow.map(n => `<span class="chip">${esc(n)}</span>`).join('')}</p>
+        </div>` : '';
+
+    const teacherOptions = (state.config.teachers || []).map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('');
 
     return `
+      <div class="card">
+        <div class="btn-row" style="justify-content:space-between; align-items:center;">
+          <h2 style="margin:0;">Admin</h2>
+          <button class="btn btn-outline" id="admin-logout-btn">Sign out</button>
+        </div>
+      </div>
+
+      ${inNowHtml}
+      ${openHtml}
+
       <div class="card">
         <h2>School location</h2>
         <p class="hint">Stand at the school and tap "Use my current location," or enter coordinates manually. This applies to every teacher checking in.</p>
         <form id="config-form">
           <label for="cfg-name">Location name</label>
-          <input type="text" id="cfg-name" value="${state.config ? state.config.name.replace(/"/g,'&quot;') : ''}" placeholder="Lincoln Elementary" />
+          <input type="text" id="cfg-name" value="${state.config ? esc(state.config.name) : ''}" placeholder="Chabad Academy" />
           <div class="btn-row" style="margin-bottom:14px;">
             <button type="button" class="btn btn-outline" id="use-location-btn">Use my current location</button>
           </div>
           <label for="cfg-lat">Latitude</label>
-          <input type="number" step="any" id="cfg-lat" value="${state.config ? state.config.lat : ''}" placeholder="33.7490" />
+          <input type="number" step="any" id="cfg-lat" value="${state.config ? state.config.lat : ''}" placeholder="33.8961" />
           <label for="cfg-lng">Longitude</label>
-          <input type="number" step="any" id="cfg-lng" value="${state.config ? state.config.lng : ''}" placeholder="-84.3880" />
+          <input type="number" step="any" id="cfg-lng" value="${state.config ? state.config.lng : ''}" placeholder="-84.3820" />
           <label for="cfg-radius">Allowed radius (meters)</label>
           <input type="number" id="cfg-radius" value="${state.config ? state.config.radius : 300}" />
-          ${state.locSaveMsg ? `<div class="banner">${state.locSaveMsg}</div>` : ''}
+          ${state.locSaveMsg ? `<div class="banner">${esc(state.locSaveMsg)}</div>` : ''}
           <button type="submit" class="btn btn-brass">Save location</button>
         </form>
       </div>
 
       <div class="card">
         <h2>Teachers</h2>
-        <p class="hint">These show up as a dropdown on the Clock tab. Add one per line, or separate names with commas — the list is saved permanently and stays the same every day.</p>
+        <p class="hint">These show up as a dropdown on the Clock tab. Add one per line, or separate names with commas.</p>
         <form id="add-teacher-form">
           <label for="new-teacher-input">Add teachers</label>
-          <textarea id="new-teacher-input" rows="3" placeholder="Jordan Blake&#10;Sam Rivera, Alex Chen">${state.newTeacherInput.replace(/</g,'&lt;')}</textarea>
+          <textarea id="new-teacher-input" rows="3" placeholder="Jordan Blake&#10;Sam Rivera, Alex Chen">${esc(state.newTeacherInput)}</textarea>
           <button type="submit" class="btn btn-brass" style="margin-top:2px;">Add</button>
         </form>
         <div style="margin-top:16px;">
         ${(state.config.teachers && state.config.teachers.length)
-          ? state.config.teachers.map(t => `<div class="teacher-row"><span>${t}</span><button class="remove-btn" data-teacher="${t.replace(/"/g,'&quot;')}">Remove</button></div>`).join('')
+          ? state.config.teachers.map(t => `<div class="teacher-row"><span>${esc(t)}</span><button class="remove-btn" data-teacher="${esc(t)}">Remove</button></div>`).join('')
           : `<p class="empty">No teachers added yet.</p>`}
         </div>
+      </div>
+
+      <div class="card">
+        <h2>Fix a punch</h2>
+        <p class="hint">Add a clock-in or clock-out that was missed or recorded wrong, including a correction to an automatic 3:45 PM clock-out. Delete the wrong punch from the table below first if needed.</p>
+        <form id="manual-punch-form">
+          <label for="mp-teacher">Teacher</label>
+          <select id="mp-teacher">
+            <option value="">Select a teacher…</option>
+            ${teacherOptions}
+          </select>
+          <label for="mp-type">Action</label>
+          <select id="mp-type">
+            <option value="in">Clock in</option>
+            <option value="out">Clock out</option>
+          </select>
+          <label for="mp-date">Date</label>
+          <input type="date" id="mp-date" value="${esc(state.manualPunchDate || todayStr())}" />
+          <label for="mp-time">Time</label>
+          <input type="time" id="mp-time" value="${esc(state.manualPunchTime || nowTimeStr())}" />
+          ${state.adminMsg ? `<div class="banner">${esc(state.adminMsg)}</div>` : ''}
+          <button type="submit" class="btn btn-brass">Add punch</button>
+        </form>
       </div>
 
       <div class="card">
         <h2>Change admin passcode</h2>
         <form id="pass-form">
           <label for="new-pass">New passcode</label>
-          <input type="text" id="new-pass" placeholder="At least 4 characters" />
+          <input type="text" id="new-pass" placeholder="At least 4 characters" autocomplete="off" />
           <button type="submit" class="btn btn-outline">Update passcode</button>
         </form>
       </div>
@@ -897,27 +1300,32 @@
       <div class="card">
         <h2>Browse by day</h2>
         <div class="btn-row" style="align-items:center; flex-wrap:wrap;">
-          <input type="date" id="date-filter" value="${state.adminDateFilter}" style="flex:1; min-width:150px; margin-bottom:0;" ${state.showAllDates ? 'disabled' : ''} />
+          <input type="date" id="date-filter" value="${esc(state.adminDateFilter)}" style="flex:1; min-width:150px; margin-bottom:0;" ${state.showAllDates ? 'disabled' : ''} />
           <button type="button" class="btn btn-outline" id="today-btn">Today</button>
         </div>
         <label class="checkbox-row" style="margin-top:12px; margin-bottom:0;">
           <input type="checkbox" id="show-all-dates" ${state.showAllDates ? 'checked' : ''} />
           Show all dates instead
         </label>
+        <div style="margin-top:14px;">
+          <label for="teacher-filter">Filter by teacher</label>
+          <input type="text" id="teacher-filter" placeholder="Type a name…" value="${esc(state.adminTeacherFilter)}" style="margin-bottom:0;" />
+        </div>
       </div>
 
       <div class="card">
-        <h2>Total hours — ${state.showAllDates ? 'all dates' : state.adminDateFilter}</h2>
+        <h2>Total hours — ${state.showAllDates ? 'all dates' : esc(state.adminDateFilter)}</h2>
         ${totalRows}
+        ${missedRows}
       </div>
 
       <div class="card">
         <div class="btn-row" style="justify-content:space-between; align-items:center; margin-bottom:14px;">
-          <h2 style="margin:0;">Check-ins — ${state.showAllDates ? 'all dates' : state.adminDateFilter}</h2>
+          <h2 style="margin:0;">Check-ins — ${state.showAllDates ? 'all dates' : esc(state.adminDateFilter)}</h2>
           <button class="btn btn-outline" id="export-btn">Export CSV</button>
         </div>
         <table>
-          <thead><tr><th>Teacher</th><th>Action</th><th>Time</th><th>Distance</th><th>Note</th></tr></thead>
+          <thead><tr><th>Teacher</th><th>Action</th><th>Time</th><th>Distance</th><th>Note</th><th></th></tr></thead>
           <tbody>${recordRows}</tbody>
         </table>
       </div>
@@ -925,11 +1333,13 @@
   }
 
   function render(){
+    const todayLong = new Date().toLocaleDateString(undefined, { weekday:'long', month:'long', day:'numeric' });
     app.innerHTML = `
       <header class="bar">
         <p class="eyebrow">Chaya Mushka</p>
-        <h1>${state.config ? state.config.name : 'Chabad Academy'}</h1>
+        <h1>${state.config ? esc(state.config.name) : 'Chabad Academy'}</h1>
         <p class="sub">Sign in and out from your phone — only works on site.</p>
+        <p class="today">${esc(todayLong)}</p>
       </header>
       <div class="tabs">
         <button class="tab ${state.tab==='clock'?'active':''}" data-tab="clock">Clock</button>
@@ -950,6 +1360,7 @@
           state.teacherName = e.target.value;
           state.geoStatus = null;
           state.lastStamp = null;
+          state.lastPunch = null;
           if(eventType === 'change') render();
         });
       }
@@ -957,6 +1368,8 @@
       if(clockBtn) clockBtn.addEventListener('click', handleClockAction);
       const enableBtn = document.getElementById('enable-location-btn');
       if(enableBtn) enableBtn.addEventListener('click', handleEnableLocation);
+      const undoBtn = document.getElementById('undo-btn');
+      if(undoBtn) undoBtn.addEventListener('click', handleUndoPunch);
       const manualToggle = document.getElementById('manual-time-toggle');
       if(manualToggle){
         manualToggle.addEventListener('change', (e)=>{
@@ -966,16 +1379,26 @@
         });
       }
       const manualInput = document.getElementById('manual-time-input');
-      if(manualInput){
-        manualInput.addEventListener('input', (e)=>{ state.manualTimeValue = e.target.value; });
+      if(manualInput) manualInput.addEventListener('input', (e)=>{ state.manualTimeValue = e.target.value; });
+      const manualOutToggle = document.getElementById('manual-out-toggle');
+      if(manualOutToggle){
+        manualOutToggle.addEventListener('change', (e)=>{
+          state.manualOutEnabled = e.target.checked;
+          if(state.manualOutEnabled && !state.manualOutValue) state.manualOutValue = nowTimeStr();
+          render();
+        });
       }
+      const manualOutInput = document.getElementById('manual-out-input');
+      if(manualOutInput) manualOutInput.addEventListener('input', (e)=>{ state.manualOutValue = e.target.value; });
     }
 
     if(state.tab === 'admin'){
       if(!state.adminUnlocked){
-        const loginBtn = document.getElementById('admin-login-btn');
-        if(loginBtn) loginBtn.addEventListener('click', handleAdminLogin);
+        const loginForm = document.getElementById('admin-login-form');
+        if(loginForm) loginForm.addEventListener('submit', handleAdminLogin);
       } else {
+        const logoutBtn = document.getElementById('admin-logout-btn');
+        if(logoutBtn) logoutBtn.addEventListener('click', handleAdminLogout);
         const useLocBtn = document.getElementById('use-location-btn');
         if(useLocBtn) useLocBtn.addEventListener('click', handleUseMyLocation);
         const cfgForm = document.getElementById('config-form');
@@ -989,12 +1412,37 @@
         document.querySelectorAll('.remove-btn').forEach(btn=>{
           btn.addEventListener('click', ()=> handleRemoveTeacher(btn.dataset.teacher));
         });
+        const mpForm = document.getElementById('manual-punch-form');
+        if(mpForm){
+          mpForm.addEventListener('submit', handleManualPunch);
+          const mpTeacher = document.getElementById('mp-teacher');
+          if(mpTeacher){
+            mpTeacher.value = state.manualPunchTeacher;
+            mpTeacher.addEventListener('change', (e)=>{ state.manualPunchTeacher = e.target.value; });
+          }
+          const mpType = document.getElementById('mp-type');
+          if(mpType){
+            mpType.value = state.manualPunchType;
+            mpType.addEventListener('change', (e)=>{ state.manualPunchType = e.target.value; });
+          }
+          const mpDate = document.getElementById('mp-date');
+          if(mpDate) mpDate.addEventListener('change', (e)=>{ state.manualPunchDate = e.target.value; });
+          const mpTime = document.getElementById('mp-time');
+          if(mpTime) mpTime.addEventListener('input', (e)=>{ state.manualPunchTime = e.target.value; });
+        }
+        document.querySelectorAll('[data-delete]').forEach(btn=>{
+          btn.addEventListener('click', ()=>{
+            if(confirm('Delete this punch?')) handleDeleteRecord(btn.dataset.delete);
+          });
+        });
         const dateFilter = document.getElementById('date-filter');
         if(dateFilter) dateFilter.addEventListener('change', (e)=>{ state.adminDateFilter = e.target.value; render(); });
         const todayBtn = document.getElementById('today-btn');
         if(todayBtn) todayBtn.addEventListener('click', ()=>{ state.adminDateFilter = todayStr(); state.showAllDates = false; render(); });
         const showAllChk = document.getElementById('show-all-dates');
         if(showAllChk) showAllChk.addEventListener('change', (e)=>{ state.showAllDates = e.target.checked; render(); });
+        const teacherFilter = document.getElementById('teacher-filter');
+        if(teacherFilter) teacherFilter.addEventListener('input', (e)=>{ state.adminTeacherFilter = e.target.value; render(); });
       }
     }
   }
@@ -1004,3 +1452,5 @@
 </script>
 </body>
 </html>
+
+
