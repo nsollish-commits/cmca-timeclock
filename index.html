@@ -400,7 +400,8 @@
     tab: 'clock',
     loading: true,
     loadError: '',
-    config: null,         // {name, lat, lng, radius, teachers: []} — never includes the passcode
+    recordsReady: false, // today's status is unknown until the history has loaded
+    recordsError: '',    config: null,         // {name, lat, lng, radius, teachers: []} — never includes the passcode
     records: [],          // array of {id, teacherName, type, ts, distance, offSite, timeAdjusted, missed, manual}
     teacherName: '',
     checking: false,
@@ -492,18 +493,21 @@
   async function loadAll(){
     state.loading = true;
     render();
+    // Settings first: the name list is usable as soon as they arrive.
+    // The history loads in the background (see loadRecords) so a slow
+    // history download no longer blocks the whole page.
     try{
-      const [cfg, recs] = await Promise.all([apiGet('/api/config'), apiGet('/api/records')]);
+      const cfg = await apiGet('/api/config');
       state.config = cfg || DEFAULT_CONFIG;
       if(!Array.isArray(state.config.teachers)) state.config.teachers = [];
-      state.records = Array.isArray(recs) ? recs : [];
       state.loadError = '';
-      // Close any shifts still open past 8 PM at 3:45 PM, before first paint.
-      await autoCloseMissedShifts();
     }catch(e){
       state.config = DEFAULT_CONFIG;
       state.records = [];
       state.loadError = e.message || 'Could not load data. Check your connection and refresh.';
+      state.loading = false;
+      render();
+      return;
     }
     try{
       const remembered = localStorage.getItem(LAST_TEACHER_KEY);
@@ -516,10 +520,37 @@
     await checkGeoPermission();
     render();
     startElapsedTimer();
+    loadRecords();
+  }
+
+  // History loads after the first paint, with retries. The punch button
+  // stays locked until today's status is known, so nobody can punch twice
+  // while the status is still loading.
+  async function loadRecords(){
+    for(let attempt = 0; attempt < 3; attempt++){
+      try{
+        const recs = await apiGet('/api/records');
+        state.records = Array.isArray(recs) ? recs : [];
+        state.recordsReady = true;
+        state.recordsError = '';
+        // Close any shifts still open past 8 PM at 3:45 PM.
+        await autoCloseMissedShifts();
+        render();
+        return;
+      }catch(e){
+        if(attempt < 2) await new Promise(r => setTimeout(r, 1000));
+      }
+    }
+    state.recordsError = 'Could not load today\'s punches, so your status may be out of date. Tap Retry to try again.';
+    render();
   }
 
   async function refreshRecords(){
-    try{ state.records = await apiGet('/api/records'); }catch(e){ /* keep what we have */ }
+    try{
+      state.records = await apiGet('/api/records');
+      state.recordsReady = true;
+      state.recordsError = '';
+    }catch(e){ /* keep what we have */ }
     render();
   }
 
@@ -723,6 +754,7 @@
     const name = state.teacherName.trim();
     if(!name){ state.geoStatus = { ok:false, message: 'Select your name first.' }; render(); return; }
     if(!state.config){ state.geoStatus = { ok:false, message: 'Location not set up yet.' }; render(); return; }
+    if(!state.recordsReady){ state.geoStatus = { ok:false, message: 'Still loading today\'s punches — give it a second and try again.' }; render(); return; }
 
     const nextType = isCheckedIn(name) ? 'out' : 'in';
 
@@ -1093,6 +1125,9 @@
       const cls = state.geoStatus.ok === true ? 'ok' : state.geoStatus.ok === false ? 'bad' : 'wait';
       statusHtml = `<div class="status-line ${cls}">${esc(state.geoStatus.message)}</div>`;
     }
+    if(state.recordsError){
+      statusHtml += `<div class="banner error">${esc(state.recordsError)} <button class="btn btn-outline" id="retry-records-btn">Retry</button></div>`;
+    }
 
     let stampHtml = '';
     if(state.lastStamp){
@@ -1151,8 +1186,8 @@
         ${manualTimeHtml}
         ${statusHtml}
         ${stampHtml}
-        <button class="btn btn-primary btn-block" id="clock-btn" ${state.checking ? 'disabled' : ''}>
-          ${state.checking ? 'Checking location…' : (checkedIn ? 'Clock Out' : 'Clock In')}
+        <button class="btn btn-primary btn-block" id="clock-btn" ${(state.checking || !state.recordsReady) ? 'disabled' : ''}>
+          ${state.checking ? 'Checking location…' : (!state.recordsReady ? 'Loading your status…' : (checkedIn ? 'Clock Out' : 'Clock In'))}
         </button>
         ${undoHtml}
         ${last && !checkedIn ? `<p class="hint" style="margin-top:14px;">Last action: ${last.type === 'in' ? 'Clocked in' : 'Clocked out'} ${fmtTime(last.ts)}${last.autoClockOut ? ' (automatic, 3:45 PM)' : ''}</p>` : ''}
@@ -1366,6 +1401,8 @@
       }
       const clockBtn = document.getElementById('clock-btn');
       if(clockBtn) clockBtn.addEventListener('click', handleClockAction);
+      const retryBtn = document.getElementById('retry-records-btn');
+      if(retryBtn) retryBtn.addEventListener('click', ()=>{ state.recordsError = ''; render(); loadRecords(); });
       const enableBtn = document.getElementById('enable-location-btn');
       if(enableBtn) enableBtn.addEventListener('click', handleEnableLocation);
       const undoBtn = document.getElementById('undo-btn');

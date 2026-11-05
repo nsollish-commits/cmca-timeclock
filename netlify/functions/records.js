@@ -24,16 +24,26 @@ function validRecord(r) {
 }
 
 async function listRecords(store) {
-  const out = [];
+  const keys = [];
   let cursor;
   do {
     const page = await store.list({ prefix: "rec_", cursor });
-    for (const item of page.blobs || []) {
-      const rec = await store.get(item.key, { type: "json" });
-      if (rec) out.push(rec);
-    }
+    for (const item of page.blobs || []) keys.push(item.key);
     cursor = page.cursor;
   } while (cursor);
+
+  // Fetch the punches in parallel batches. The old code awaited each blob
+  // one at a time, so 1,300+ punches took 7+ seconds (30+ cold). Batches of
+  // 50 bring the whole history down to about a second.
+  const out = [];
+  const BATCH = 50;
+  for (let i = 0; i < keys.length; i += BATCH) {
+    const batch = keys.slice(i, i + BATCH);
+    const recs = await Promise.all(
+      batch.map((key) => store.get(key, { type: "json" }))
+    );
+    for (const rec of recs) if (rec) out.push(rec);
+  }
 
   // One-time migration: the old design kept one "records" array blob.
   // Move each punch into its own key, then drop the old blob.
