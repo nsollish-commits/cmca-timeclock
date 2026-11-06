@@ -424,6 +424,7 @@
     settingLocation: false,
     locSaveMsg: '',
     newTeacherInput: '',
+    teachersListOpen: false, // teacher list on the Admin tab starts collapsed
     manualTimeEnabled: false,
     manualTimeValue: '',
     manualOutEnabled: false,
@@ -1301,9 +1302,12 @@
           <button type="submit" class="btn btn-brass" style="margin-top:2px;">Add</button>
         </form>
         <div style="margin-top:16px;">
-        ${(state.config.teachers && state.config.teachers.length)
-          ? state.config.teachers.map(t => `<div class="teacher-row"><span>${esc(t)}</span><button class="remove-btn" data-teacher="${esc(t)}">Remove</button></div>`).join('')
-          : `<p class="empty">No teachers added yet.</p>`}
+          <button type="button" class="btn btn-outline" id="teachers-toggle" style="width:100%;">${state.teachersListOpen ? 'Hide teacher list ▴' : `Show all ${(state.config.teachers || []).length} teachers ▾`}</button>
+          ${state.teachersListOpen ? (
+            (state.config.teachers && state.config.teachers.length)
+              ? state.config.teachers.map(t => `<div class="teacher-row"><span>${esc(t)}</span><button class="remove-btn" data-teacher="${esc(t)}">Remove</button></div>`).join('')
+              : `<p class="empty">No teachers added yet.</p>`
+          ) : ''}
         </div>
       </div>
 
@@ -1453,6 +1457,8 @@
         if(exportBtn) exportBtn.addEventListener('click', exportCSV);
         const addTeacherForm = document.getElementById('add-teacher-form');
         if(addTeacherForm) addTeacherForm.addEventListener('submit', handleAddTeacher);
+        const teachersToggle = document.getElementById('teachers-toggle');
+        if(teachersToggle) teachersToggle.addEventListener('click', ()=>{ state.teachersListOpen = !state.teachersListOpen; render(); });
         document.querySelectorAll('.remove-btn').forEach(btn=>{
           btn.addEventListener('click', ()=> handleRemoveTeacher(btn.dataset.teacher));
         });
