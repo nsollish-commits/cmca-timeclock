@@ -38,7 +38,7 @@
   }
 
   *{ box-sizing:border-box; }
-  html,body{ height:100%; }
+  html,body{ height:100%; overflow-x:hidden; }
   body{
     margin:0;
     background: var(--paper);
@@ -312,6 +312,9 @@
   }
 
   table{ width:100%; border-collapse: collapse; font-size: 13px; }
+  /* Check-ins table: scrolls sideways inside its card instead of forcing the whole page wider */
+  .table-scroll{ overflow-x:auto; -webkit-overflow-scrolling:touch; margin: 0 -4px; padding: 0 4px; }
+  .table-scroll table{ min-width: 540px; }
   th, td{
     text-align:left;
     padding: 9px 8px;
@@ -1370,10 +1373,12 @@
           <h2 style="margin:0;">Check-ins — ${state.showAllDates ? 'all dates' : esc(state.adminDateFilter)}</h2>
           <button class="btn btn-outline" id="export-btn">Export CSV</button>
         </div>
+        <div class="table-scroll">
         <table>
           <thead><tr><th>Teacher</th><th>Action</th><th>Time</th><th>Distance</th><th>Note</th><th></th></tr></thead>
           <tbody>${recordRows}</tbody>
         </table>
+        </div>
       </div>
     `;
   }
