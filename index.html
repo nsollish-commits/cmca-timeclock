@@ -546,7 +546,10 @@
         state.recordsError = '';
         // Close any shifts still open past the day's cutoff (8 PM / 3:45 PM, Fridays 5 PM / 2 PM).
         await autoCloseMissedShifts();
-        render();
+        // Don't rebuild the page while the admin is typing the passcode:
+        // the login form shows no records, so this render only destroys
+        // what they typed. The next submit or tab switch re-renders.
+        if(!(document.activeElement && document.activeElement.id === 'admin-pass')) render();
         return;
       }catch(e){
         if(attempt < 2) await new Promise(r => setTimeout(r, 1000));
@@ -902,6 +905,7 @@
       state.adminToken = res.token;
       state.adminUnlocked = true;
       state.adminError = '';
+      state.adminPassInput = '';
       try{ sessionStorage.setItem(ADMIN_TOKEN_KEY, res.token); }catch(e){ /* ignore */ }
       render();
       refreshRecords();
@@ -1224,7 +1228,7 @@
           <p class="hint">Enter the admin passcode to manage location settings and view all hours.</p>
           <form id="admin-login-form">
             <label for="admin-pass">Passcode</label>
-            <input type="password" id="admin-pass" placeholder="Admin passcode" autocomplete="current-password" />
+            <input type="password" id="admin-pass" placeholder="Admin passcode" autocomplete="current-password" enterkeyhint="go" value="${esc(state.adminPassInput)}" />
             ${state.adminError ? `<div class="banner error">${esc(state.adminError)}</div>` : ''}
             <button type="submit" class="btn btn-primary">Unlock admin</button>
           </form>
@@ -1392,6 +1396,13 @@
   }
 
   function render(){
+    // The whole page is rebuilt on every render, so remember whether the
+    // passcode field had focus (and where the caret was) and put it back
+    // afterwards. Otherwise a background refresh while typing wipes the
+    // field, drops focus, and dismisses the mobile keyboard.
+    const passHadFocus = !!(document.activeElement && document.activeElement.id === 'admin-pass');
+    const passSelStart = passHadFocus ? document.activeElement.selectionStart : null;
+    const passSelEnd = passHadFocus ? document.activeElement.selectionEnd : null;
     const todayLong = new Date().toLocaleDateString(undefined, { weekday:'long', month:'long', day:'numeric' });
     app.innerHTML = `
       <header class="bar">
@@ -1457,6 +1468,20 @@
       if(!state.adminUnlocked){
         const loginForm = document.getElementById('admin-login-form');
         if(loginForm) loginForm.addEventListener('submit', handleAdminLogin);
+        const passInput = document.getElementById('admin-pass');
+        if(passInput){
+          // Keep every keystroke in state (no re-render here), so a
+          // background refresh can never wipe what was typed.
+          passInput.addEventListener('input', (e)=>{ state.adminPassInput = e.target.value; });
+          // Enter submits on desktop and mobile, even if the form's
+          // native submit doesn't fire.
+          passInput.addEventListener('keydown', (e)=>{
+            if(e.key === 'Enter'){
+              e.preventDefault();
+              if(loginForm) loginForm.requestSubmit();
+            }
+          });
+        }
       } else {
         const logoutBtn = document.getElementById('admin-logout-btn');
         if(logoutBtn) logoutBtn.addEventListener('click', handleAdminLogout);
@@ -1506,6 +1531,17 @@
         if(showAllChk) showAllChk.addEventListener('change', (e)=>{ state.showAllDates = e.target.checked; render(); });
         const teacherFilter = document.getElementById('teacher-filter');
         if(teacherFilter) teacherFilter.addEventListener('input', (e)=>{ state.adminTeacherFilter = e.target.value; render(); });
+      }
+    }
+
+    if(passHadFocus){
+      const passInput = document.getElementById('admin-pass');
+      if(passInput){
+        passInput.focus();
+        try{
+          const pos = passInput.value.length;
+          passInput.setSelectionRange(passSelStart ?? pos, passSelEnd ?? pos);
+        }catch(e){ /* some browsers disallow selection on password fields */ }
       }
     }
   }
